@@ -1,0 +1,205 @@
+<div class="members-container">
+
+    <div class="toolbar">
+        <mat-form-field class="search-field text-field">
+            <mat-label>Buscar miembro</mat-label>
+            <input matInput [formControl]="searchControl" placeholder="Nombre o email">
+            <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        <mat-button-toggle-group [formControl]="roleFilter" class="role-filter">
+            <mat-button-toggle value="ALL">Todos</mat-button-toggle>
+            <mat-button-toggle value="OWNER">Dueño</mat-button-toggle>
+            <mat-button-toggle value="ADMIN">Admin</mat-button-toggle>
+            <mat-button-toggle value="EMPLOYEE">Empleado</mat-button-toggle>
+        </mat-button-toggle-group>
+
+        <!-- Solo ADMIN y OWNER ven este botón — lo controla el backend,
+             pero lo ocultamos también en el frontend por UX -->
+        @if (canManage) {
+            <button mat-flat-button (click)="openAddDialog()">
+                <mat-icon>person_add</mat-icon> Agregar miembro
+            </button>
+        }
+    </div>
+
+    @if (isLoading) {
+        <div class="state-container">
+            <mat-spinner diameter="48"></mat-spinner>
+            <p>Cargando miembros...</p>
+        </div>
+    } @else if (filteredMembers().length === 0) {
+        <div class="state-container">
+            <mat-icon class="empty-icon">group_off</mat-icon>
+            <p>No se encontraron miembros</p>
+            @if (searchControl.value || roleFilter.value !== 'ALL') {
+                <button mat-stroked-button (click)="clearFilters()">Limpiar filtros</button>
+            }
+        </div>
+    } @else {
+        <div class="members-list">
+            @for (member of filteredMembers(); track member.id) {
+                <mat-card class="member-card">
+                    <mat-card-content class="member-content">
+
+                        <div class="member-avatar" [ngClass]="getAvatarClass(member.role)">
+                            {{ getInitials(member.userFullName || member.userEmail) }}
+                        </div>
+
+                        <div class="member-info">
+                            <span class="member-name">
+                                {{ member.userFullName || 'Sin nombre' }}
+                            </span>
+                            <span class="member-email">{{ member.userEmail }}</span>
+                        </div>
+
+                        <span class="role-badge" [ngClass]="getRoleClass(member.role)">
+                            {{ getRoleLabel(member.role) }}
+                        </span>
+
+                        @if (canManageRole && member.role !== 'OWNER') {
+                            <div class="member-actions">
+                                <button mat-icon-button
+                                    matTooltip="Cambiar rol"
+                                    (click)="openChangeRoleDialog(member)">
+                                    <mat-icon>manage_accounts</mat-icon>
+                                </button>
+                            </div>
+                        }
+                        @if (canManage && member.role !== 'OWNER') {
+                            <button mat-icon-button
+                                matTooltip="Eliminar miembro"
+                                (click)="removeMember(member)">
+                                <mat-icon>person_remove</mat-icon>
+                            </button>
+                        }
+
+                        @if (member.role === 'OWNER') {
+                            <div class="member-actions">
+                                <mat-icon matTooltip="Dueño del negocio"
+                                    class="owner-icon">verified</mat-icon>
+                            </div>
+                        }
+
+                    </mat-card-content>
+                </mat-card>
+            }
+        </div>
+    }
+
+</div>
+
+<!-- Dialog: agregar miembro -->
+@if (showAddDialog) {
+    <div class="dialog-backdrop" (click)="closeAddDialog()">
+        <mat-card class="dialog-card" (click)="$event.stopPropagation()">
+            <mat-card-content>
+                <h2>Agregar miembro</h2>
+
+                <form [formGroup]="addForm" (ngSubmit)="addMember()" class="dialog-form">
+
+                    <mat-form-field class="full-width text-field">
+                        <mat-label>Email del usuario</mat-label>
+                        <input matInput formControlName="userEmail"
+                            placeholder="usuario@email.com" type="email">
+                        <mat-hint>
+                            El usuario debe estar registrado en la app
+                        </mat-hint>
+                        @if (addForm.get('userEmail')?.hasError('required') && addForm.get('userEmail')?.touched) {
+                            <mat-error>El email es obligatorio</mat-error>
+                        }
+                        @if (addForm.get('userEmail')?.hasError('email')) {
+                            <mat-error>Ingresa un email válido</mat-error>
+                        }
+                    </mat-form-field>
+
+                    <mat-form-field class="full-width text-field">
+                        <mat-label>Rol</mat-label>
+                        <mat-select formControlName="role">
+                            <mat-option value="ADMIN">Administrador</mat-option>
+                            <mat-option value="EMPLOYEE">Empleado</mat-option>
+                        </mat-select>
+                        <mat-hint>
+                            @if (addForm.get('role')?.value === 'ADMIN') {
+                                Puede gestionar miembros, productos, ventas y gastos
+                            } @else {
+                                Puede crear ventas y gastos
+                            }
+                        </mat-hint>
+                    </mat-form-field>
+
+                    <div class="dialog-actions">
+                        <button mat-button type="button" (click)="closeAddDialog()">
+                            Cancelar
+                        </button>
+                        <button mat-flat-button type="submit"
+                            [disabled]="addForm.invalid || isSubmitting">
+                            @if (isSubmitting) {
+                                <mat-spinner diameter="20"></mat-spinner>
+                            } @else {
+                                Agregar
+                            }
+                        </button>
+                    </div>
+
+                </form>
+            </mat-card-content>
+        </mat-card>
+    </div>
+}
+
+<!-- Dialog: cambiar rol -->
+@if (selectedMember) {
+    <div class="dialog-backdrop" (click)="closeChangeRoleDialog()">
+        <mat-card class="dialog-card" (click)="$event.stopPropagation()">
+            <mat-card-content>
+                <h2>Cambiar rol</h2>
+                <p class="dialog-subtitle">
+                    {{ selectedMember.userFullName || selectedMember.userEmail }}
+                </p>
+
+                <div class="role-options">
+                    <mat-card class="role-option"
+                        [class.selected]="newRole === 'ADMIN'"
+                        (click)="newRole = 'ADMIN'">
+                        <mat-icon>admin_panel_settings</mat-icon>
+                        <div>
+                            <strong>Administrador</strong>
+                            <p>Gestiona miembros, productos, ventas y gastos</p>
+                        </div>
+                        @if (newRole === 'ADMIN') {
+                            <mat-icon class="check-icon">check_circle</mat-icon>
+                        }
+                    </mat-card>
+
+                    <mat-card class="role-option"
+                        [class.selected]="newRole === 'EMPLOYEE'"
+                        (click)="newRole = 'EMPLOYEE'">
+                        <mat-icon>badge</mat-icon>
+                        <div>
+                            <strong>Empleado</strong>
+                            <p>Solo puede crear ventas y gastos</p>
+                        </div>
+                        @if (newRole === 'EMPLOYEE') {
+                            <mat-icon class="check-icon">check_circle</mat-icon>
+                        }
+                    </mat-card>
+                </div>
+
+                <div class="dialog-actions">
+                    <button mat-button (click)="closeChangeRoleDialog()">Cancelar</button>
+                    <button mat-flat-button
+                        [disabled]="newRole === selectedMember.role || isSubmitting"
+                        (click)="saveRole()">
+                        @if (isSubmitting) {
+                            <mat-spinner diameter="20"></mat-spinner>
+                        } @else {
+                            Guardar
+                        }
+                    </button>
+                </div>
+
+            </mat-card-content>
+        </mat-card>
+    </div>
+}

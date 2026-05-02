@@ -1,0 +1,171 @@
+.acces-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: radial-gradient(#250059 50%, black);
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+// ── Banner de sesión expirada ──────────────────────────────────────────────────
+
+.expired-banner {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: rgba(20, 10, 40, 0.75);
+    border: 1px solid rgba(230, 81, 0, 0.6);
+    backdrop-filter: blur(8px);
+    color: white;
+    padding: 16px 20px;
+    border-radius: 14px;
+    max-width: 640px;
+    width: 90%;
+    margin-bottom: 24px;
+    animation: banner-slide-in 0.35s ease;
+}
+
+@keyframes banner-slide-in {
+    from { opacity: 0; transform: translateY(-16px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.expired-icon-wrap {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: rgba(230, 81, 0, 0.2);
+    border: 1px solid rgba(230, 81, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    mat-icon {
+        font-size: 26px;
+        width: 26px;
+        height: 26px;
+        color: #ff9800;
+    }
+}
+
+.expired-text {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1;
+
+    strong {
+        font-size: 14px;
+        font-weight: 700;
+        color: #ffcc80;
+    }
+    span {
+        font-size: 12px;
+        opacity: 0.8;
+        line-height: 1.4;
+    }
+}
+
+.expired-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.6;
+    transition: opacity 0.2s, background 0.2s;
+    flex-shrink: 0;
+
+    &:hover { opacity: 1; background: rgba(255, 255, 255, 0.1); }
+
+    mat-icon { font-size: 20px; width: 20px; height: 20px; color: white; }
+}
+
+// ── Tarjeta principal ──────────────────────────────────────────────────────────
+
+.acces-content {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    width: 80%;
+    height: 80vh;
+    position: relative;
+    border-radius: 1.2rem;
+}
+
+app-login,
+app-register {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.left-panel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50%;
+    height: 100%;
+    z-index: 2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 1rem 10rem 10rem 1rem;
+    flex-direction: column;
+    transition: transform 1s ease, opacity 0.5s ease, visibility 1s ease;
+    background: linear-gradient(90deg, #250059 0%, #3f008d 100%);
+}
+
+.right-panel {
+    width: 50%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10rem 1rem 1rem 10rem;
+    flex-direction: column;
+    z-index: 2;
+    transition: transform 1s ease, opacity 0.5s ease, visibility 1s ease;
+    background: linear-gradient(270deg, #250059 0%, #3f008d 100%);
+}
+
+.acces-content.login-active .left-panel {
+    transform: translateX(100%);
+    opacity: 0;
+    visibility: hidden;
+}
+
+.acces-content.register-active .right-panel {
+    transform: translateX(-100%);
+    opacity: 0;
+    visibility: hidden;
+}
+
+.acces-content.login-active app-register {
+    transform: translateX(-100%);
+    opacity: 0;
+    visibility: hidden;
+}
+
+.acces-content.register-active app-login {
+    transform: translateX(100%);
+    opacity: 0;
+    visibility: hidden;
+}
+
+app-register {
+    transition: transform 1s ease, opacity 0.5s ease, visibility 1s ease;
+}
+
+app-login {
+    transition: transform 1s ease, opacity 0.5s ease, visibility 1s ease;
+}

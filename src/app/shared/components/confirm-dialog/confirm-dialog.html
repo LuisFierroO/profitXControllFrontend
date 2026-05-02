@@ -1,0 +1,14 @@
+<div class="confirm-dialog">
+  <div class="confirm-dialog__icon">
+    <mat-icon>help_outline</mat-icon>
+  </div>
+
+  <mat-dialog-content>
+    <p class="confirm-dialog__message">{{ data.message }}</p>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="cancel()">Cancelar</button>
+    <button mat-flat-button (click)="confirm()">Confirmar</button>
+  </mat-dialog-actions>
+</div>

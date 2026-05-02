@@ -1,0 +1,62 @@
+<h2 mat-dialog-title>Modificar venta #{{ data.sale.id }}</h2>
+
+<mat-dialog-content class="dialog-content">
+
+    <p class="sale-date">{{ data.sale.date | date:'dd/MM/yyyy HH:mm' }}</p>
+
+    <div class="items-list">
+        @for (item of items; track $index) {
+            <div class="item-row">
+                <span class="item-name">{{ item.productName }}</span>
+                <span class="item-unit-price">
+                    {{ item.unitPrice | currency:'COP':'symbol':'1.0-0' }} c/u
+                </span>
+                <div class="item-controls">
+                    <button mat-icon-button (click)="decrease($index)"
+                        [disabled]="item.quantity <= 1">
+                        <mat-icon>remove</mat-icon>
+                    </button>
+                    <span class="item-qty">{{ item.quantity }}</span>
+                    <button mat-icon-button (click)="increase($index)">
+                        <mat-icon>add</mat-icon>
+                    </button>
+                </div>
+                <span class="item-subtotal">
+                    {{ item.unitPrice * item.quantity | currency:'COP':'symbol':'1.0-0' }}
+                </span>
+                <button mat-icon-button class="remove-btn" (click)="removeItem($index)"
+                    matTooltip="Quitar producto">
+                    <mat-icon>close</mat-icon>
+                </button>
+            </div>
+        }
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <div class="total-row">
+        <span>Total</span>
+        <span class="total-amount">{{ newTotal | currency:'COP':'symbol':'1.0-0' }}</span>
+    </div>
+
+    @if (items.length === 0) {
+        <p class="warning">
+            <mat-icon>warning</mat-icon>
+            Si quitas todos los productos se eliminará la venta completa.
+        </p>
+    }
+
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <button mat-button [mat-dialog-close]="false">Cancelar</button>
+    <button mat-flat-button color="warn"
+        [disabled]="!hasChanges() || isLoading"
+        (click)="save()">
+        @if (isLoading) {
+            <mat-spinner diameter="20"></mat-spinner>
+        } @else {
+            Guardar cambios
+        }
+    </button>
+</mat-dialog-actions>

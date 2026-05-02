@@ -1,0 +1,72 @@
+<h2 mat-dialog-title>Modificar producto</h2>
+
+<mat-dialog-content class="dialog-content">
+
+    <form [formGroup]="productForm" class="product-form">
+
+        <!-- Imagen -->
+        <div class="image-section">
+            <img [src]="previewUrl() || placeholder"
+                class="img-preview"
+                alt="Imagen del producto"
+                (error)="onImgError($event)">
+            <button mat-stroked-button type="button" (click)="fileInput.click()">
+                <mat-icon>upload</mat-icon> Cambiar imagen
+            </button>
+            <input type="file" #fileInput hidden
+                accept="image/jpeg,image/png,image/webp"
+                (change)="onFileSelected($event)">
+        </div>
+
+        <mat-form-field  class="full-width text-field">
+            <mat-label>Nombre</mat-label>
+            <input matInput formControlName="name">
+            @if (productForm.get('name')?.hasError('required') && productForm.get('name')?.touched) {
+                <mat-error>El nombre es obligatorio</mat-error>
+            }
+        </mat-form-field>
+
+        <mat-form-field class="full-width text-field">
+            <mat-label>Descripción</mat-label>
+            <textarea matInput formControlName="description" rows="2"></textarea>
+        </mat-form-field>
+
+        <mat-form-field class="full-width text-field">
+            <mat-label>Precio de venta</mat-label>
+            <span matTextPrefix>$&nbsp;</span>
+            <input matInput type="number" min="0" formControlName="price">
+            @if (productForm.get('price')?.hasError('min')) {
+                <mat-error>El precio debe ser mayor a 0</mat-error>
+            }
+        </mat-form-field>
+
+        @if (data.product.hasStock) {
+            <mat-form-field class="full-width text-field">
+                <mat-label>Ajuste de stock</mat-label>
+                <input matInput type="number" formControlName="stockAdjustment">
+                <mat-hint>
+                    Stock actual: {{ data.product.stock }}.
+                    @if (productForm.get('stockAdjustment')?.value) {
+                        Nuevo: {{ data.product.stock + (productForm.get('stockAdjustment')?.value ?? 0) }}
+                    }
+                    Usa números negativos para reducir.
+                </mat-hint>
+            </mat-form-field>
+        }
+
+    </form>
+
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <button mat-button [mat-dialog-close]="false">Cancelar</button>
+    <button mat-flat-button color="primary"
+        [disabled]="productForm.invalid || isLoading"
+        (click)="save()">
+        @if (isLoading) {
+            <mat-spinner diameter="20"></mat-spinner>
+        } @else {
+            Guardar cambios
+        }
+    </button>
+</mat-dialog-actions>

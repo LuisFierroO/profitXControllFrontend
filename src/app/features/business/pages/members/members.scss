@@ -1,0 +1,232 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+
+.members-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+
+// ── Toolbar ───────────────────────────────────────────────────────────────────
+
+.toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px 8px;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+}
+
+.search-field  { flex: 1; min-width: 200px; }
+.role-filter   { height: 40px; }
+
+// ── Estados ───────────────────────────────────────────────────────────────────
+
+.state-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    gap: 16px;
+    color: gray;
+}
+
+.empty-icon {
+    font-size: 56px;
+    width: 56px;
+    height: 56px;
+    color: lightgray;
+}
+
+// ── Lista ─────────────────────────────────────────────────────────────────────
+
+.members-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow-y: auto;
+    flex: 1;
+    padding: 8px 20px 20px;
+}
+
+.member-card { width: 100%; }
+
+.member-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 16px;
+}
+
+// ── Avatar con iniciales ──────────────────────────────────────────────────────
+
+.member-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 600;
+    flex-shrink: 0;
+
+    &.avatar-owner    { background: #ede7f6; color: #4527a0; }
+    &.avatar-admin    { background: #e3f2fd; color: #1565c0; }
+    &.avatar-employee { background: #e8f5e9; color: #2e7d32; }
+}
+
+// ── Info ──────────────────────────────────────────────────────────────────────
+
+.member-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 2px;
+    overflow: hidden;
+}
+
+.member-name {
+    font-size: 15px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.member-email {
+    font-size: 12px;
+    color: gray;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+// ── Badge de rol ──────────────────────────────────────────────────────────────
+
+.role-badge {
+    display: inline-block;
+    padding: 3px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    flex-shrink: 0;
+
+    &.role-owner    { background: #ede7f6; color: #4527a0; }
+    &.role-admin    { background: #e3f2fd; color: #1565c0; }
+    &.role-employee { background: #e8f5e9; color: #2e7d32; }
+}
+
+// ── Acciones ──────────────────────────────────────────────────────────────────
+
+.member-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.remove-btn { color: #aaa; &:hover { color: #c62828; } }
+
+.owner-icon { color: #7b1fa2; font-size: 22px; width: 22px; height: 22px; }
+
+// ── Dialogs inline ────────────────────────────────────────────────────────────
+
+.dialog-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.dialog-card {
+    width: 460px;
+    max-width: 95vw;
+}
+
+.dialog-card mat-card-content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 24px;
+
+    h2 { margin: 0; font-size: 20px; font-weight: 500; }
+}
+
+.dialog-subtitle {
+    margin: -8px 0 0;
+    color: gray;
+    font-size: 14px;
+}
+
+.dialog-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.full-width { width: 100%; }
+
+.dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+// ── Selector de rol ───────────────────────────────────────────────────────────
+
+.role-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.role-option {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: border-color 0.15s ease, background 0.15s ease;
+
+    &:hover { border-color: #ce93d8; }
+
+    &.selected {
+        border-color: #7b1fa2;
+        background: #fce4ec10;
+    }
+
+    mat-icon:first-child {
+        font-size: 28px;
+        width: 28px;
+        height: 28px;
+        color: #7b1fa2;
+        flex-shrink: 0;
+    }
+
+    div {
+        flex: 1;
+        strong { font-size: 14px; font-weight: 500; }
+        p { font-size: 12px; color: gray; margin: 2px 0 0; }
+    }
+}
+
+.check-icon {
+    color: #7b1fa2;
+    font-size: 22px !important;
+    width: 22px !important;
+    height: 22px !important;
+    flex-shrink: 0;
+}

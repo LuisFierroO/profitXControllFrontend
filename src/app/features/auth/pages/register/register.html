@@ -1,0 +1,46 @@
+<div class="register-container">
+    <div class="register-header"> 
+        <div>
+            <mat-card-title style="font-size: 40px;">Crea tu cuenta</mat-card-title>
+        </div>
+    </div>
+
+    <mat-card-content class ="register-card">
+        <div>
+            <form class ="register-form"  [formGroup]="registerForm" (ngSubmit)="register()">
+                <div class="name-fields">
+
+                <mat-form-field class="text-field name-field">
+                    <mat-label>Nombre</mat-label>
+                    <input matInput type="text" formControlName="firstName">
+                </mat-form-field>
+                
+                <mat-form-field class="text-field name-field">
+                    <mat-label>Apellido</mat-label>
+                    <input matInput type="text" formControlName="lastName">
+                </mat-form-field>
+
+                </div>
+                <mat-form-field class="text-field">
+                    <mat-label>Correo electronico</mat-label>
+                    <input matInput type="text" formControlName="email">
+                </mat-form-field>
+
+                <mat-form-field class="text-field">
+                    <mat-label>Contraseña</mat-label>
+                    <input matInput type="password" formControlName="password">
+                </mat-form-field>
+
+                <mat-form-field class="text-field">
+                    <mat-label>Confirma tu contraseña</mat-label>
+                    <input matInput type="password" formControlName="confirmPassword">
+                </mat-form-field>
+
+                <div class="buttons-row">
+                    <button matButton="filled" type="submit" class="button-register">Registrarse</button>
+                </div>
+            </form>
+        </div>
+    </mat-card-content>
+
+</div>

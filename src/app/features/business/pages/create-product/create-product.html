@@ -1,0 +1,84 @@
+<div class="create-product-container">
+    <mat-card class="create-product-card">
+        <mat-card-content class="create-product-content">
+            <h1>Crear Producto</h1>
+
+            <form class="product-form" [formGroup]="productForm" (ngSubmit)="createProduct()">
+
+                <mat-form-field class="text-field">
+                    <mat-label>Nombre</mat-label>
+                    <input matInput type="text" formControlName="name">
+                    @if (productForm.get('name')?.hasError('required') && productForm.get('name')?.touched) {
+                        <mat-error>El nombre es obligatorio</mat-error>
+                    }
+                </mat-form-field>
+
+                <mat-form-field class="text-field">
+                    <mat-label>Descripción</mat-label>
+                    <textarea matInput formControlName="description" rows="3"></textarea>
+                </mat-form-field>
+
+                <mat-form-field class="text-field">
+                    <mat-label>Precio de venta</mat-label>
+                    <span matTextPrefix>$&nbsp;</span>
+                    <input matInput type="number" min="0" formControlName="price">
+                    @if (productForm.get('price')?.hasError('required') && productForm.get('price')?.touched) {
+                        <mat-error>El precio es obligatorio</mat-error>
+                    }
+                    @if (productForm.get('price')?.hasError('min')) {
+                        <mat-error>El precio debe ser mayor a 0</mat-error>
+                    }
+                </mat-form-field>
+
+                <div class="stock-toggle-row">
+                    <mat-slide-toggle formControlName="hasStock" (change)="onStockToggle($event)">
+                        Manejar stock
+                    </mat-slide-toggle>
+                </div>
+
+                @if (productForm.get('hasStock')?.valueChanges | async) {
+                    <mat-form-field class="text-field">
+                        <mat-label>Stock inicial</mat-label>
+                        <input matInput type="number" min="0" (click)="resetQuantity()" formControlName="initialStock">
+                        @if (productForm.get('initialStock')?.hasError('min')) {
+                            <mat-error>El stock no puede ser negativo</mat-error>
+                        }
+                    </mat-form-field>
+                }
+
+                <!-- Vista previa de imagen -->
+                <div class="image-section">
+                    @if (previewUrl()) {
+                        <img [src]="previewUrl()!" class="img-preview" alt="Vista previa del producto">
+                        <button mat-button type="button" class="remove-image-btn" (click)="removeImage()">
+                            Quitar imagen
+                        </button>
+                    } @else {
+                        <mat-card class="img-placeholder">
+                            <mat-icon>image</mat-icon>
+                            <p>Vista previa de la imagen</p>
+                        </mat-card>
+                        <button mat-stroked-button type="button" (click)="fileInput.click()">
+                            Subir imagen
+                        </button>
+                    }
+                </div>
+
+                <input type="file" #fileInput hidden accept="image/jpeg,image/png,image/webp" (change)="onFileSelected($event)">
+
+                <div class="buttons-row">
+                    <button mat-button type="button" (click)="cancel()">Cancelar</button>
+                    <button matButton="filled" type="submit"
+                        [disabled]="productForm.invalid || isLoading">
+                        @if (isLoading) {
+                            <mat-spinner diameter="20"></mat-spinner>
+                        } @else {
+                            Crear producto
+                        }
+                    </button>
+                </div>
+
+            </form>
+        </mat-card-content>
+    </mat-card>
+</div>

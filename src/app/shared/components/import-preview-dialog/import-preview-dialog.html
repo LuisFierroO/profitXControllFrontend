@@ -1,0 +1,79 @@
+<h2 mat-dialog-title class="dialog-title">
+  <mat-icon>upload_file</mat-icon>
+  {{ data.title }}
+</h2>
+
+<mat-dialog-content class="dialog-body">
+
+  <button mat-stroked-button class="template-btn" (click)="downloadTemplate()">
+    <mat-icon>download</mat-icon>
+    Descargar plantilla de ejemplo
+  </button>
+
+  <!-- Summary -->
+  <div class="summary-row">
+    <span class="badge valid">
+      <mat-icon>check_circle</mat-icon>
+      {{ data.validCount }} válidos
+    </span>
+    @if (data.errors.length > 0) {
+      <span class="badge errors">
+        <mat-icon>error</mat-icon>
+        {{ data.errors.length }} errores
+      </span>
+    }
+  </div>
+
+  <!-- Errors -->
+  @if (data.errors.length > 0) {
+    <div class="errors-section">
+      <p class="section-label">Errores encontrados:</p>
+      <ul class="error-list">
+        @for (err of shownErrors; track err) {
+          <li>{{ err }}</li>
+        }
+        @if (extraErrors > 0) {
+          <li class="extra">... y {{ extraErrors }} más</li>
+        }
+      </ul>
+    </div>
+  }
+
+  <!-- Preview table -->
+  @if (data.validCount > 0) {
+    <p class="section-label">
+      Vista previa
+      @if (data.validCount > MAX_PREVIEW) {
+        <span class="muted">(mostrando {{ MAX_PREVIEW }} de {{ data.validCount }})</span>
+      }
+    </p>
+    <div class="table-wrapper">
+      <table class="preview-table">
+        <thead>
+          <tr>
+            @for (col of data.previewColumns; track col.key) {
+              <th>{{ col.label }}</th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of previewRows; track $index) {
+            <tr>
+              @for (col of data.previewColumns; track col.key) {
+                <td>{{ row[col.key] ?? '—' }}</td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-stroked-button (click)="cancel()">Cancelar</button>
+  <button mat-flat-button [disabled]="data.validCount === 0" (click)="confirm()">
+    Importar {{ data.validCount }} registros
+  </button>
+</mat-dialog-actions>

@@ -1,0 +1,20 @@
+<button mat-stroked-button [matMenuTriggerFor]="exportMenu" [disabled]="disabled" class="export-btn">
+  <mat-icon>download</mat-icon>
+  Exportar
+  <mat-icon>arrow_drop_down</mat-icon>
+</button>
+
+<mat-menu #exportMenu="matMenu">
+  <button mat-menu-item (click)="select('csv')">
+    <mat-icon>table_view</mat-icon>
+    <span>CSV</span>
+  </button>
+  <button mat-menu-item (click)="select('xlsx')">
+    <mat-icon>grid_on</mat-icon>
+    <span>Excel (.xlsx)</span>
+  </button>
+  <button mat-menu-item (click)="select('pdf')">
+    <mat-icon>picture_as_pdf</mat-icon>
+    <span>PDF</span>
+  </button>
+</mat-menu>

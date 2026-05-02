@@ -1,0 +1,19 @@
+.flex {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+    min-width: 600px;
+}
+
+app-nabvar {
+
+
+    flex-shrink: 0;
+    /* 🔥 clave */
+}
+
+.content {
+    flex: 1;
+    display: block;
+    overflow-y: auto;
+}

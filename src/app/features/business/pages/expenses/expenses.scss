@@ -1,0 +1,494 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+
+.expenses-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+
+// ── Toolbar ───────────────────────────────────────────────────────────────────
+
+.toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px 8px;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+}
+
+.search-field {
+    flex: 1;
+    min-width: 180px;
+}
+
+.type-filter {
+    height: 40px;
+}
+
+.date-field {
+    width: 150px;
+}
+
+// ── Resumen ───────────────────────────────────────────────────────────────────
+
+.summary-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 20px 8px;
+    font-size: 13px;
+    color: gray;
+    flex-shrink: 0;
+}
+
+.summary-total {
+    font-size: 15px;
+    font-weight: 600;
+    color: #c62828;
+}
+
+// ── Estados ───────────────────────────────────────────────────────────────────
+
+.state-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    gap: 16px;
+    color: gray;
+}
+
+.empty-icon {
+    font-size: 56px;
+    width: 56px;
+    height: 56px;
+    color: lightgray;
+}
+
+// ── Lista de gastos ───────────────────────────────────────────────────────────
+
+.expenses-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow-y: auto;
+    flex: 1;
+    padding: 8px 20px 20px;
+}
+
+.expense-card {
+    width: 100%;
+}
+
+.expense-content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 14px 16px;
+}
+
+.expense-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.expense-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+}
+
+.expense-title-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.expense-description {
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.expense-date {
+    font-size: 12px;
+    color: gray;
+}
+
+.expense-amount {
+    font-size: 20px;
+    font-weight: 700;
+    color: #c62828;
+    white-space: nowrap;
+}
+
+// ── Badges de tipo ────────────────────────────────────────────────────────────
+
+.type-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+
+    &.type-simple {
+        background: #e3f2fd;
+        color: #1565c0;
+    }
+
+    &.type-inventory {
+        background: #e8f5e9;
+        color: #2e7d32;
+    }
+}
+
+// ── Items de inventario ───────────────────────────────────────────────────────
+
+.purchased-items {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 4px 0;
+}
+
+.item-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+}
+
+.item-qty {
+    color: gray;
+    min-width: 28px;
+}
+
+.item-name {
+    flex: 1;
+}
+
+.item-cost {
+    font-size: 12px;
+    color: gray;
+}
+
+.item-subtotal {
+    font-weight: 500;
+    color: #2e7d32;
+    min-width: 80px;
+    text-align: right;
+}
+
+.expense-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.delete-btn {
+    color: #aaa;
+
+    &:hover {
+        color: #c62828;
+    }
+}
+
+.edit-btn {
+    color: #aaa;
+
+    &:hover {
+        color: #1565c0;
+    }
+}
+
+.edit-dialog-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    h2 {
+        margin: 0;
+    }
+}
+
+.stock-hint {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    font-size: 12px;
+    color: gray;
+    margin: 0;
+    line-height: 1.4;
+
+    .hint-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+        margin-top: 1px;
+        color: #f57c00;
+    }
+}
+
+// ── Dialog ────────────────────────────────────────────────────────────────────
+
+.dialog-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.dialog-card {
+    width: 560px;
+    max-width: 95vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    transition: width 0.2s ease;
+}
+
+.dialog-card-wide {
+    width: 720px;
+}
+
+.dialog-content {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 24px;
+
+    h2 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 500;
+    }
+}
+
+.expense-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.full-width {
+    width: 100%;
+}
+
+// ── Selector de tipo ──────────────────────────────────────────────────────────
+
+.type-selector {
+    display: flex;
+    gap: 10px;
+}
+
+.type-option {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    border: 2px solid var(--color-border-tertiary);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+
+    &:hover {
+        border-color: #9c27b0;
+    }
+
+    &.selected {
+        border-color: #7b1fa2;
+        background: #f3e5f510;
+    }
+
+    mat-icon:first-child {
+        color: #7b1fa2;
+        flex-shrink: 0;
+    }
+
+    div {
+        flex: 1;
+
+        strong {
+            font-size: 13px;
+            font-weight: 500;
+            display: block;
+        }
+
+        p {
+            font-size: 11px;
+            color: gray;
+            margin: 2px 0 0;
+        }
+    }
+}
+
+.check {
+    color: #7b1fa2;
+    font-size: 20px !important;
+    width: 20px !important;
+    height: 20px !important;
+}
+
+// ── Sección inventario ────────────────────────────────────────────────────────
+
+.inventory-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    border: 1px solid var(--color-border-tertiary);
+    border-radius: 8px;
+}
+
+.inventory-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.no-items {
+    font-size: 13px;
+    color: gray;
+    text-align: center;
+    padding: 8px 0;
+    margin: 0;
+}
+
+.inv-item-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.inv-item-name {
+    flex: 1;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.qty-field {
+    width: 90px;
+}
+
+.cost-field {
+    width: 120px;
+}
+
+.inv-subtotal {
+    font-size: 13px;
+    font-weight: 600;
+    color: #2e7d32;
+    min-width: 80px;
+    text-align: right;
+}
+
+.inv-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 6px;
+    border-top: 1px solid var(--color-border-tertiary);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.inv-total-amount {
+    font-size: 18px;
+    font-weight: 700;
+    color: #2e7d32;
+}
+
+.dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+// ── Picker de productos ───────────────────────────────────────────────────────
+
+.picker-card {
+    width: 400px;
+}
+
+.product-picker-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: 320px;
+    overflow-y: auto;
+    margin-top: 4px;
+}
+
+.picker-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.1s;
+
+    &:hover:not(.already-added) {
+        background: var(--color-background-secondary);
+    }
+
+    &.already-added {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+}
+
+.picker-img {
+    width: 44px;
+    height: 44px;
+    object-fit: cover;
+    border-radius: 4px;
+    background: #f0f0f0;
+    flex-shrink: 0;
+}
+
+.picker-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 2px;
+}
+
+.picker-name {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.picker-stock {
+    font-size: 12px;
+    color: gray;
+
+    &.no-stock {
+        color: red;
+    }
+}
+
+.added-icon {
+    color: #2e7d32;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+}
+

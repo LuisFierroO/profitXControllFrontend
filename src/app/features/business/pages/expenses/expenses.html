@@ -1,0 +1,416 @@
+<div class="expenses-container">
+
+    <div class="toolbar">
+        <mat-form-field class="search-field text-field">
+            <mat-label>Buscar gasto</mat-label>
+            <input matInput [formControl]="searchControl" placeholder="Descripción o producto">
+            <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        <mat-button-toggle-group [formControl]="typeFilter" class="type-filter">
+            <mat-button-toggle value="ALL">Todos</mat-button-toggle>
+            <mat-button-toggle value="SIMPLE">Simple</mat-button-toggle>
+            <mat-button-toggle value="INVENTORY">Inventario</mat-button-toggle>
+        </mat-button-toggle-group>
+
+        <mat-form-field class="date-field text-field">
+            <mat-label>Desde</mat-label>
+            <input matInput [matDatepicker]="pickerFrom" [formControl]="dateFrom">
+            <mat-datepicker-toggle matSuffix [for]="pickerFrom"></mat-datepicker-toggle>
+            <mat-datepicker #pickerFrom></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field class="date-field text-field">
+            <mat-label>Hasta</mat-label>
+            <input matInput [matDatepicker]="pickerTo" [formControl]="dateTo">
+            <mat-datepicker-toggle matSuffix [for]="pickerTo"></mat-datepicker-toggle>
+            <mat-datepicker #pickerTo></mat-datepicker>
+        </mat-form-field>
+
+        @if (searchControl.value || typeFilter.value !== 'ALL' || dateFrom.value || dateTo.value) {
+        <button mat-icon-button matTooltip="Limpiar filtros" (click)="clearFilters()">
+            <mat-icon>filter_alt_off</mat-icon>
+        </button>
+        }
+
+        @if(canManageImports){
+        <app-import-button (fileSelected)="onImport($event)"></app-import-button>
+        <app-export-button [disabled]="filteredExpenses().length === 0" (exportSelected)="onExport($event)">
+        </app-export-button>
+        }
+
+        <button mat-flat-button (click)="openCreateDialog()">
+            <mat-icon>add</mat-icon> Registrar gasto
+        </button>
+    </div>
+
+    @if (!isLoading() && filteredExpenses().length > 0) {
+    <div class="summary-bar">
+        <span>{{ filteredExpenses().length }} gastos</span>
+        <span class="summary-total">
+            Total: {{ totalFiltered() | currency:'COP':'symbol':'1.0-0' }}
+        </span>
+    </div>
+    }
+
+    @if (isLoading()) {
+    <div class="state-container">
+        <mat-spinner diameter="48"></mat-spinner>
+        <p>Cargando gastos...</p>
+    </div>
+    } @else if (filteredExpenses().length === 0) {
+    <div class="state-container">
+        <mat-icon class="empty-icon">money_off</mat-icon>
+        <p>No se encontraron gastos</p>
+        @if (searchControl.value || typeFilter.value !== 'ALL') {
+        <button mat-stroked-button (click)="clearFilters()">Limpiar filtros</button>
+        }
+    </div>
+    } @else {
+    <div class="expenses-list">
+        @for (expense of filteredExpenses(); track expense.id) {
+        <mat-card class="expense-card">
+            <mat-card-content class="expense-content">
+
+                <div class="expense-header">
+                    <div class="expense-meta">
+                        <div class="expense-title-row">
+                            <span class="expense-description">{{ expense.description }}</span>
+                            <span class="type-badge"
+                                [ngClass]="expense.type === 'SIMPLE' ? 'type-simple' : 'type-inventory'">
+                                {{ expense.type === 'SIMPLE' ? 'Simple' : 'Inventario' }}
+                            </span>
+                        </div>
+                        <span class="expense-date">
+                            {{ expense.date | date:'dd/MM/yyyy HH:mm' }}
+                        </span>
+                    </div>
+                    <span class="expense-amount">
+                        {{ expense.amount | currency:'COP':'symbol':'1.0-0' }}
+                    </span>
+                </div>
+
+                @if (expense.type === 'INVENTORY' && expense.purchasedItems?.length) {
+                <mat-divider></mat-divider>
+                <div class="purchased-items">
+                    @for (item of expense.purchasedItems; track item.productId) {
+                    <div class="item-row">
+                        <span class="item-qty">{{ item.quantity }}x</span>
+                        <span class="item-name">{{ item.productName }}</span>
+                        <span class="item-cost">
+                            {{ item.unitCost | currency:'COP':'symbol':'1.0-0' }} c/u
+                        </span>
+                        <span class="item-subtotal">
+                            {{ item.subtotal | currency:'COP':'symbol':'1.0-0' }}
+                        </span>
+                    </div>
+                    }
+                </div>
+                }
+
+                <div class="expense-actions">
+                    <button mat-icon-button class="edit-btn" matTooltip="Editar gasto"
+                        (click)="openEditDialog(expense)">
+                        <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-icon-button class="delete-btn" matTooltip="Eliminar gasto"
+                        (click)="deleteExpense(expense)">
+                        <mat-icon>delete_outline</mat-icon>
+                    </button>
+                </div>
+
+            </mat-card-content>
+        </mat-card>
+        }
+    </div>
+    }
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!-- Dialog: registrar gasto                                               -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+@if (showCreateDialog()) {
+<div class="dialog-backdrop" (click)="closeCreateDialog()">
+    <mat-card class="dialog-card" [class.dialog-card-wide]="expenseForm.get('type')?.value === 'INVENTORY'"
+        (click)="$event.stopPropagation()">
+        <mat-card-content class="dialog-content">
+            <h2>Registrar gasto</h2>
+
+            <form [formGroup]="expenseForm" (ngSubmit)="createExpense()" class="expense-form">
+
+                <mat-form-field class="full-width text-field">
+                    <mat-label>Descripción</mat-label>
+                    <input matInput formControlName="description" placeholder="Ej: Pago de servicios">
+                    @if (expenseForm.get('description')?.hasError('required') &&
+                    expenseForm.get('description')?.touched) {
+                    <mat-error>La descripción es obligatoria</mat-error>
+                    }
+                </mat-form-field>
+
+                <!-- Selector de tipo -->
+                <div class="type-selector">
+                    <div class="type-option" [class.selected]="expenseForm.get('type')?.value === 'SIMPLE'"
+                        (click)="setType('SIMPLE')">
+                        <mat-icon>payments</mat-icon>
+                        <div>
+                            <strong>Gasto simple</strong>
+                            <p>Solo afecta el dinero</p>
+                        </div>
+                        @if (expenseForm.get('type')?.value === 'SIMPLE') {
+                        <mat-icon class="check">check_circle</mat-icon>
+                        }
+                    </div>
+                    <div class="type-option" [class.selected]="expenseForm.get('type')?.value === 'INVENTORY'"
+                        (click)="setType('INVENTORY')">
+                        <mat-icon>inventory</mat-icon>
+                        <div>
+                            <strong>Compra de inventario</strong>
+                            <p>Agrega stock a productos</p>
+                        </div>
+                        @if (expenseForm.get('type')?.value === 'INVENTORY') {
+                        <mat-icon class="check">check_circle</mat-icon>
+                        }
+                    </div>
+                </div>
+
+                <!-- Monto (solo SIMPLE) -->
+                @if (expenseForm.get('type')?.value === 'SIMPLE') {
+                <mat-form-field class="full-width text-field">
+                    <mat-label>Monto</mat-label>
+                    <span matTextPrefix>$&nbsp;</span>
+                    <input matInput type="number" min="0" formControlName="amount">
+                    @if (expenseForm.get('amount')?.hasError('min')) {
+                    <mat-error>El monto debe ser mayor a 0</mat-error>
+                    }
+                </mat-form-field>
+                }
+
+                <!-- Items de inventario (solo INVENTORY) -->
+                @if (expenseForm.get('type')?.value === 'INVENTORY') {
+                <div class="inventory-section">
+                    <div class="inventory-header">
+                        <span>Productos comprados</span>
+                        <button mat-stroked-button type="button" (click)="openProductPicker()">
+                            <mat-icon>add</mat-icon> Agregar producto
+                        </button>
+                    </div>
+
+                    @if (inventoryItems().length === 0) {
+                    <p class="no-items">Agrega al menos un producto</p>
+                    }
+
+                    @for (item of inventoryItems(); track $index) {
+                    <div class="inv-item-row">
+                        <span class="inv-item-name">{{ item.productName }}</span>
+                        <mat-form-field class="qty-field text-field">
+                            <mat-label>Cantidad</mat-label>
+                            <input matInput type="number" min="1" [value]="item.quantity"
+                                (change)="updateItemQty($index, +$any($event.target).value)">
+                        </mat-form-field>
+                        <mat-form-field class="cost-field text-field">
+                            <mat-label>Costo unit.</mat-label>
+                            <span matTextPrefix>$&nbsp;</span>
+                            <input matInput type="number" min="0" [value]="item.unitCost"
+                                (change)="updateItemCost($index, +$any($event.target).value)">
+                        </mat-form-field>
+                        <span class="inv-subtotal">
+                            {{ item.quantity * item.unitCost | currency:'COP':'symbol':'1.0-0' }}
+                        </span>
+                        <button mat-icon-button type="button" class="delete-btn" (click)="removeInventoryItem($index)">
+                            <mat-icon>close</mat-icon>
+                        </button>
+                    </div>
+                    }
+
+                    @if (inventoryItems().length > 0) {
+                    <div class="inv-total">
+                        <span>Total calculado:</span>
+                        <span class="inv-total-amount">
+                            {{ inventoryTotal() | currency:'COP':'symbol':'1.0-0' }}
+                        </span>
+                    </div>
+                    }
+                </div>
+
+                <!-- ── Análisis de rentabilidad ─────────────────────── -->
+                <app-profitability-panel
+                    [results]="profitabilityResults()"
+                    [isLoading]="isProfitabilityLoading()">
+                </app-profitability-panel>
+                }
+
+                <div class="dialog-actions">
+                    <button mat-button type="button" (click)="closeCreateDialog()">
+                        Cancelar
+                    </button>
+                    <button mat-flat-button type="submit"
+                        [disabled]="!canSubmit() || isSubmitting() || isProfitabilityLoading()">
+                        @if (isSubmitting() ) {
+                        <mat-spinner diameter="20"></mat-spinner>
+                        } @else {
+                        Registrar
+                        }
+                    </button>
+                </div>
+
+            </form>
+        </mat-card-content>
+    </mat-card>
+</div>
+}
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!-- Dialog: editar gasto                                                  -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+@if (showEditDialog() && editingExpense()) {
+<div class="dialog-backdrop" (click)="closeEditDialog()">
+    <mat-card class="dialog-card" [class.dialog-card-wide]="editingExpense()!.type === 'INVENTORY'"
+        (click)="$event.stopPropagation()">
+        <mat-card-content class="dialog-content">
+            <div class="edit-dialog-header">
+                <h2>Editar gasto</h2>
+                <span class="type-badge"
+                    [ngClass]="editingExpense()!.type === 'SIMPLE' ? 'type-simple' : 'type-inventory'">
+                    {{ editingExpense()!.type === 'SIMPLE' ? 'Simple' : 'Inventario' }}
+                </span>
+            </div>
+
+            <form [formGroup]="editExpenseForm" (ngSubmit)="updateExpense()" class="expense-form">
+
+                <mat-form-field class="full-width text-field">
+                    <mat-label>Descripción</mat-label>
+                    <input matInput formControlName="description">
+                    @if (editExpenseForm.get('description')?.hasError('required') &&
+                    editExpenseForm.get('description')?.touched) {
+                    <mat-error>La descripción es obligatoria</mat-error>
+                    }
+                </mat-form-field>
+
+                <!-- Monto (solo SIMPLE) -->
+                @if (editingExpense()!.type === 'SIMPLE') {
+                <mat-form-field class="full-width text-field">
+                    <mat-label>Monto</mat-label>
+                    <span matTextPrefix>$&nbsp;</span>
+                    <input matInput type="number" min="0" formControlName="amount">
+                </mat-form-field>
+                }
+
+                <!-- Items de inventario (solo INVENTORY) -->
+                @if (editingExpense()!.type === 'INVENTORY') {
+                <div class="inventory-section">
+                    <div class="inventory-header">
+                        <span>Productos comprados</span>
+                        <button mat-stroked-button type="button" (click)="openEditProductPicker()">
+                            <mat-icon>add</mat-icon> Agregar producto
+                        </button>
+                    </div>
+
+                    @if (editInventoryItems().length === 0) {
+                    <p class="no-items">Agrega al menos un producto</p>
+                    }
+
+                    @for (item of editInventoryItems(); track $index) {
+                    <div class="inv-item-row">
+                        <span class="inv-item-name">{{ item.productName }}</span>
+                        <mat-form-field class="qty-field text-field">
+                            <mat-label>Cantidad</mat-label>
+                            <input matInput type="number" min="1" [value]="item.quantity"
+                                (change)="updateItemQtyEdit($index, +$any($event.target).value)">
+                        </mat-form-field>
+                        <mat-form-field class="cost-field text-field">
+                            <mat-label>Costo unit.</mat-label>
+                            <span matTextPrefix>$&nbsp;</span>
+                            <input matInput type="number" min="0" [value]="item.unitCost"
+                                (change)="updateItemCostEdit($index, +$any($event.target).value)">
+                        </mat-form-field>
+                        <span class="inv-subtotal">
+                            {{ item.quantity * item.unitCost | currency:'COP':'symbol':'1.0-0' }}
+                        </span>
+                        <button mat-icon-button type="button" class="delete-btn"
+                            (click)="removeInventoryItemEdit($index)">
+                            <mat-icon>close</mat-icon>
+                        </button>
+                    </div>
+                    }
+
+                    @if (editInventoryItems().length > 0) {
+                    <div class="inv-total">
+                        <span>Total calculado:</span>
+                        <span class="inv-total-amount">
+                            {{ editInventoryTotal() | currency:'COP':'symbol':'1.0-0' }}
+                        </span>
+                    </div>
+                    }
+                </div>
+
+                <!-- ── Análisis de rentabilidad (edit) ─────────────── -->
+                <app-profitability-panel
+                    [results]="editProfitabilityResults()"
+                    [isLoading]="isProfitabilityLoading()">
+                </app-profitability-panel>
+
+                <p class="stock-hint">
+                    <mat-icon class="hint-icon">info</mat-icon>
+                    Si reduces cantidades o eliminas productos, el stock se ajustará. Si el inventario ya fue vendido,
+                    el cambio será bloqueado.
+                </p>
+                }
+
+                <div class="dialog-actions">
+                    <button mat-button type="button" (click)="closeEditDialog()">
+                        Cancelar
+                    </button>
+                    <button mat-flat-button type="submit" [disabled]="!canEditSubmit() || isSubmitting()">
+                        @if (isSubmitting()) {
+                        <mat-spinner diameter="20"></mat-spinner>
+                        } @else {
+                        Guardar cambios
+                        }
+                    </button>
+                </div>
+
+            </form>
+        </mat-card-content>
+    </mat-card>
+</div>
+}
+
+<!-- Picker de productos para inventario -->
+@if (showProductPicker()) {
+<div class="dialog-backdrop" (click)="closeProductPicker()">
+    <mat-card class="dialog-card picker-card" (click)="$event.stopPropagation()">
+        <mat-card-content class="dialog-content">
+            <h2>Seleccionar producto</h2>
+
+            <mat-form-field class="full-width text-field">
+                <mat-label>Buscar</mat-label>
+                <input matInput [formControl]="productSearch">
+                <mat-icon matSuffix>search</mat-icon>
+            </mat-form-field>
+
+            <div class="product-picker-list">
+                @for (product of filteredPickerProducts(); track product.id) {
+                <div class="picker-item" [class.already-added]="isAlreadyAdded(product.id)"
+                    (click)="selectProduct(product)">
+                    <img [src]="product.imgUrl || placeholder" class="picker-img" (error)="onImgError($event)"
+                        alt="{{ product.name }}">
+                    <div class="picker-info">
+                        <span class="picker-name">{{ product.name }}</span>
+                        @if (product.hasStock) {
+                        <span class="picker-stock" [class.no-stock]="product.stock === 0">
+                            Stock: {{ product.stock }}
+                        </span>
+                        }
+                    </div>
+                    @if (isAlreadyAdded(product.id)) {
+                    <mat-icon class="added-icon">check</mat-icon>
+                    }
+                </div>
+                }
+            </div>
+
+        </mat-card-content>
+    </mat-card>
+</div>
+}

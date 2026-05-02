@@ -1,0 +1,104 @@
+<div class="edit-bussines-container">
+    <mat-card class="edit-bussines-card">
+        <mat-card-content class="edit-bussines-content">
+
+            @if (isLoadingData()) {
+                <mat-spinner diameter="40"></mat-spinner>
+            } @else {
+
+                <h1>Editar Negocio</h1>
+
+                <!-- Sección de datos -->
+                <section class="form-section">
+                    <h2 class="section-title">Información general</h2>
+                    <form class="bussines-form" [formGroup]="businessForm" (ngSubmit)="saveData()">
+
+                        <mat-form-field class="text-field">
+                            <mat-label>Nombre</mat-label>
+                            <input matInput type="text" formControlName="name">
+                            @if (businessForm.get('name')?.hasError('required') && businessForm.get('name')?.touched) {
+                                <mat-error>El nombre es obligatorio</mat-error>
+                            }
+                        </mat-form-field>
+
+                        <mat-form-field class="text-field">
+                            <mat-label>Descripción</mat-label>
+                            <textarea matInput formControlName="description" rows="3"></textarea>
+                        </mat-form-field>
+                                        <!-- Sección de imagen -->
+                <section class="form-section">
+                    <h2 class="section-title">Imagen del negocio</h2>
+
+                    <div class="image-section">
+                        <!-- Preview nueva imagen -->
+                        @if (previewUrl()) {
+                            <div class="image-preview-wrap">
+                                <p class="image-label">Nueva imagen</p>
+                                <img [src]="previewUrl()!" class="img-preview" alt="Vista previa">
+                                <button matButton type="button" class="remove-image-btn" (click)="removeNewImage()">
+                                    Quitar
+                                </button>
+                            </div>
+                        } @else {
+                            <!-- Imagen actual -->
+                            <div class="image-preview-wrap">
+                                <p class="image-label">Imagen actual</p>
+                                @if (currentImageUrl()) {
+                                    <img [src]="currentImageUrl()!" class="img-preview"
+                                        alt="Imagen actual" (error)="onImgError($event)">
+                                } @else {
+                                    <div class="img-placeholder">
+                                        <mat-icon>store</mat-icon>
+                                        <p>Sin imagen</p>
+                                    </div>
+                                }
+                            </div>
+
+                            <button matButton="outlined" type="button" (click)="fileInput.click()">
+                                <mat-icon>upload</mat-icon>
+                                Cambiar imagen
+                            </button>
+                        }
+
+                        <input type="file" #fileInput hidden
+                            accept="image/jpeg,image/png,image/webp"
+                            (change)="onFileSelected($event)">
+                    </div>
+
+                    @if (previewUrl()) {
+                        <div class="buttons-row">
+                            <button matButton type="button" (click)="removeNewImage()">Cancelar</button>
+                            <button matButton="filled" type="button"
+                                [disabled]="isSavingImage()"
+                                (click)="saveImage()">
+                                @if (isSavingImage()) {
+                                    <mat-spinner diameter="20"></mat-spinner>
+                                } @else {
+                                    Guardar imagen
+                                }
+                            </button>
+                        </div>
+                    }
+                </section>
+                        <div class="buttons-row">
+                            <button matButton type="button" (click)="cancel()">Cancelar</button>
+                            <button matButton="filled" type="submit"
+                                [disabled]="businessForm.invalid || isSavingData()">
+                                @if (isSavingData()) {
+                                    <mat-spinner diameter="20"></mat-spinner>
+                                } @else {
+                                    Guardar cambios
+                                }
+                            </button>
+                        </div>
+
+                    </form>
+                </section>
+
+
+
+            }
+
+        </mat-card-content>
+    </mat-card>
+</div>

@@ -1,0 +1,61 @@
+<div class="create-bussines-container">
+    <mat-card class="create-bussines-card">
+        <mat-card-content class="create-bussines-content">
+            <h1>Crear Negocio</h1>
+
+            <form class="bussines-form" [formGroup]="businessForm" (ngSubmit)="createBussines()">
+
+                <mat-form-field class="text-field">
+                    <mat-label>Nombre</mat-label>
+                    <input matInput type="text" formControlName="name">
+                    @if (businessForm.get('name')?.hasError('required') && businessForm.get('name')?.touched) {
+                    <mat-error>El nombre es obligatorio</mat-error>
+                    }
+                </mat-form-field>
+
+                <mat-form-field class="text-field">
+                    <mat-label>Descripción</mat-label>
+                    <textarea matInput formControlName="description" rows="3"></textarea>
+                </mat-form-field>
+
+                <mat-form-field class="text-field">
+                    <mat-label>Nit</mat-label>
+                    <input matInput type="number" formControlName="nit">
+                </mat-form-field>
+
+                <!-- Vista previa de imagen -->
+                <div class="image-section">
+                    @if (previewUrl()) {
+                    <img [src]="previewUrl()!" class="img-preview" alt="Vista previa del negocio">
+                    <button mat-button type="button" class="remove-image-btn" (click)="removeImage()">
+                        Quitar imagen
+                    </button>
+                    } @else {
+                    <mat-card class="img-placeholder">
+                        <mat-icon>store</mat-icon>
+                        <p>Vista previa de la imagen</p>
+                    </mat-card>
+                    <button mat-stroked-button type="button" (click)="fileInput.click()">
+                        Subir imagen
+                    </button>
+                    }
+                </div>
+
+                <input type="file" #fileInput hidden accept="image/jpeg,image/png,image/webp"
+                    (change)="onFileSelected($event)">
+
+                <div class="buttons-row">
+                    <button mat-button type="button" (click)="cancel()">Cancelar</button>
+                    <button matButton="filled" type="submit" [disabled]="businessForm.invalid || isLoading">
+                        @if (isLoading) {
+                        <mat-spinner diameter="20"></mat-spinner>
+                        } @else {
+                        Registrar negocio
+                        }
+                    </button>
+                </div>
+
+            </form>
+        </mat-card-content>
+    </mat-card>
+</div>

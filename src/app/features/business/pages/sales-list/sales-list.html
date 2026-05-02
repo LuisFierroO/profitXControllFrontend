@@ -1,0 +1,140 @@
+<div class="sales-container">
+
+    <div class="toolbar">
+        <mat-form-field class="search-field text-field">
+            <mat-label>Buscar venta</mat-label>
+            <input matInput [formControl]="searchControl" placeholder="ID o producto">
+            <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field class="date-field text-field">
+            <mat-label>Desde</mat-label>
+            <input matInput [matDatepicker]="pickerFrom" [formControl]="dateFrom">
+            <mat-datepicker-toggle matSuffix [for]="pickerFrom"></mat-datepicker-toggle>
+            <mat-datepicker #pickerFrom></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field class="date-field text-field">
+            <mat-label>Hasta</mat-label>
+            <input matInput [matDatepicker]="pickerTo" [formControl]="dateTo">
+            <mat-datepicker-toggle matSuffix [for]="pickerTo"></mat-datepicker-toggle>
+            <mat-datepicker #pickerTo></mat-datepicker>
+        </mat-form-field>
+
+        @if (hasFilters()) {
+            <button mat-icon-button matTooltip="Limpiar filtros" (click)="clearFilters()">
+                <mat-icon>filter_alt_off</mat-icon>
+            </button>
+        }
+
+        @if (canManageImports) {
+            <app-import-button (fileSelected)="onImport($event)"></app-import-button>
+
+            <app-export-button
+                [disabled]="filteredSales().length === 0"
+                (exportSelected)="onExport($event)">
+            </app-export-button>
+        }
+        
+       
+    </div>
+
+    <!-- Resumen total filtrado -->
+    @if (!isLoading && filteredSales().length > 0) {
+        <div class="summary-bar">
+            <span>{{ filteredSales().length }} ventas</span>
+            <span class="summary-total">
+                Total: {{ totalFiltered | currency:'COP':'symbol':'1.0-0' }}
+            </span>
+        </div>
+    }
+
+    @if (isLoading) {
+        <div class="state-container">
+            <mat-spinner diameter="48"></mat-spinner>
+            <p>Cargando ventas...</p>
+        </div>
+    } @else if (filteredSales().length === 0) {
+        <div class="state-container">
+            <mat-icon class="empty-icon">receipt_long</mat-icon>
+            <p>No se encontraron ventas</p>
+        </div>
+    } @else {
+        <div class="sales-list">
+            @for (sale of filteredSales(); track sale.id) {
+                <mat-card class="sale-card">
+                    <mat-card-content class="sale-card-content">
+
+                        <div class="sale-header">
+                            <div class="sale-id-date">
+                                <span class="sale-id"># {{ sale.id }}</span>
+                                <span class="sale-date">
+                                    {{ sale.date | date:'dd/MM/yyyy HH:mm' }}
+                                </span>
+                            </div>
+                            <span class="sale-total">
+                                {{ sale.total | currency:'COP':'symbol':'1.0-0' }}
+                            </span>
+                        </div>
+
+                        <mat-divider></mat-divider>
+
+                        <div class="sale-items">
+                            @for (item of sale.items; track item.productId) {
+                                <div class="sale-item-row">
+                                    <span class="item-qty">{{ item.quantity }}x</span>
+                                    <span class="item-name">{{ item.productName }}</span>
+                                    <span class="item-subtotal">
+                                        {{ item.subtotal | currency:'COP':'symbol':'1.0-0' }}
+                                    </span>
+                                </div>
+                            }
+                        </div>
+
+                        @if (sale.amountPaid != null) {
+                            <div class="sale-payment-info">
+                                <div class="payment-row">
+                                    <span class="payment-label">Pago recibido</span>
+                                    <span class="payment-amount">
+                                        {{ sale.amountPaid | currency:'COP':'symbol':'1.0-0' }}
+                                    </span>
+                                </div>
+                                @if (sale.change != null && sale.change >= 0) {
+                                    <div class="change-row">
+                                        <span class="payment-label">Cambio</span>
+                                        <span class="change-amount">
+                                            {{ sale.change | currency:'COP':'symbol':'1.0-0' }}
+                                        </span>
+                                    </div>
+                                }
+                            </div>
+                        }
+
+                        <div class="sale-actions">
+                            @if (canManage) {
+                                @if (confirmingDeleteId() === sale.id) {
+                                    <span class="confirm-delete-text">¿Eliminar esta venta?</span>
+                                    <button mat-flat-button color="warn" (click)="confirmDelete(sale)">
+                                        <mat-icon>check</mat-icon> Sí, eliminar
+                                    </button>
+                                    <button mat-stroked-button (click)="cancelDelete()">
+                                        <mat-icon>close</mat-icon> Cancelar
+                                    </button>
+                                } @else {
+                                    <button mat-stroked-button (click)="editSale(sale)">
+                                        <mat-icon>edit</mat-icon> Modificar
+                                    </button>
+                                    <button mat-stroked-button color="warn" (click)="requestDelete(sale)">
+                                        <mat-icon>delete</mat-icon> Eliminar
+                                    </button>
+                                }
+                            }
+                        </div>
+
+                    </mat-card-content>
+                </mat-card>
+            }
+        </div>
+    }
+
+</div>

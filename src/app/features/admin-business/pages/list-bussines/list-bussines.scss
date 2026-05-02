@@ -1,0 +1,152 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+
+.list-bussines-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    gap: 0;
+}
+
+// ── Toolbar ───────────────────────────────────────────────────────────────────
+
+.toolbar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px 8px;
+    flex-wrap: wrap;
+}
+
+.search-field {
+    flex: 1;
+    min-width: 200px;
+}
+
+.role-filter {
+    height: 40px;
+}
+
+// ── Estados (carga / vacío) ───────────────────────────────────────────────────
+
+.state-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    gap: 16px;
+    color: gray;
+    padding: 40px;
+}
+
+.empty-icon {
+    font-size: 56px;
+    width: 56px;
+    height: 56px;
+    color: lightgray;
+}
+
+// ── Grid de tarjetas ──────────────────────────────────────────────────────────
+
+.list-bussines-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 12px 20px 20px;
+    overflow-y: auto;
+    flex: 1;
+    align-content: flex-start;
+}
+
+mat-card-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+}
+
+.bussines-card {
+    width: 350px;
+    height: 420px;
+    display: flex;
+    flex-direction: column;
+}
+
+.img-bussines {
+    width: 300px;
+    height: 180px;
+    object-fit: cover;
+    background-color: #e0e0e0;
+    border-radius: 5px;
+    margin-bottom: 8px;
+}
+
+.bussines-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 6px;
+
+    h2 {
+        margin: 0;
+        font-size: 16px;
+    }
+
+    p {
+        margin: 0;
+        font-size: 13px;
+        color: gray;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+}
+
+// ── Badge de rol ──────────────────────────────────────────────────────────────
+
+.role-badge {
+    display: inline-block;
+    padding: 2px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+
+    &.role-owner {
+        background-color: #ede7f6;
+        color: #4527a0;
+    }
+
+    &.role-admin {
+        background-color: #e3f2fd;
+        color: #1565c0;
+    }
+
+    &.role-employee {
+        background-color: #e8f5e9;
+        color: #2e7d32;
+    }
+}
+
+// ── Acciones ──────────────────────────────────────────────────────────────────
+
+.bussines-actions {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: auto;
+    padding-bottom: 4px;
+}
+
+.delete-btn {
+    color: #c62828;
+}

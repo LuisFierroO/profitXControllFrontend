@@ -1,0 +1,13 @@
+<mat-card class="navbar-container">
+    <mat-card-content class="navbar-content">
+        <div class="logo">
+            <img src="logoNoLettersBBg.png" alt="logo" style="width: 500px; height: 500px">
+        </div>
+        <mat-label style="font-size: 25px;">{{nameUser()}}</mat-label>
+        <button matButton="elevated" class="button-navBar" (click)="listBusiness()">Mis negocios</button>
+        <button matButton="elevated" class="button-navBar" (click)="createBusiness()">Crear negocio</button>
+        <div class="button-logout">
+            <button matButton="filled" (click)="exit()">Cerrar sesion</button>
+        </div>
+    </mat-card-content>
+</mat-card>

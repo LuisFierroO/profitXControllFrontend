@@ -1,0 +1,164 @@
+<div class="sale-container">
+
+    <div class="catalog-panel">
+
+        <form class="search-form">
+            <mat-form-field class="text-field">
+                <mat-label>Buscar producto</mat-label>
+                <input type="text" matInput [formControl]="searchControl"
+                    placeholder="Ingrese el nombre del producto">
+                <mat-icon matSuffix>search</mat-icon>
+            </mat-form-field>
+        </form>
+
+        <div class="products-grid">
+            @for (product of filteredProducts(); track product.id) {
+                <mat-card class="product-card"
+                    [class.out-of-stock]="product.hasStock && product.stock === 0"
+                    (click)="addToCart(product)">
+                    <mat-card-content>
+
+                        <img [src]="product.imgUrl || placeholder"
+                            class="img-product"
+                            alt="{{ product.name }}"
+                            (error)="onImgError($event)">
+
+                        <div class="product-info">
+                            <h3>{{ product.name }}</h3>
+                            <p class="product-price">
+                                {{ product.price | currency:'COP ':'symbol':'1.0-0' }}
+                            </p>
+                            @if (product.hasStock) {
+                                <p class="product-stock"
+                                    [class.low-stock]="product.stock <= 5 && product.stock > 0"
+                                    [class.no-stock]="product.stock === 0">
+                                    @if (product.stock === 0) {
+                                        Sin stock
+                                    } @else if (product.stock <= 5) {
+                                        Solo {{ product.stock }} disponibles
+                                    } @else {
+                                        Stock: {{ product.stock }}
+                                    }
+                                </p>
+                            }
+                        </div>
+
+                        @if (getCartQuantity(product.id) > 0) {
+                            <div class="cart-badge">{{ getCartQuantity(product.id) }}</div>
+                        }
+
+                    </mat-card-content>
+                </mat-card>
+            }
+
+            @if (filteredProducts().length === 0) {
+                <div class="empty-state">
+                    <mat-icon>inventory_2</mat-icon>
+                    <p>No se encontraron productos</p>
+                </div>
+            }
+        </div>
+
+    </div>
+
+    <mat-card class="cart-panel">
+        <mat-card-content class="cart-content">
+
+            <h2 class="cart-title">Venta actual</h2>
+
+            @if (cartItems.length === 0) {
+                <div class="cart-empty">
+                    <mat-icon>shopping_cart</mat-icon>
+                    <p>Toca un producto para agregarlo</p>
+                </div>
+            } @else {
+                <div class="cart-items">
+                    @for (item of cartItems; track item.product.id) {
+                        <div class="cart-item">
+                            <div class="cart-item-info">
+                                <span class="cart-item-name">{{ item.product.name }}</span>
+                                <span class="cart-item-unit-price">
+                                    {{ item.product.price | currency:'COP ':'symbol':'1.0-0' }} c/u
+                                </span>
+                            </div>
+                            <div class="cart-item-controls">
+                                <button mat-icon-button (click)="decreaseQuantity(item.product.id)">
+                                    <mat-icon>remove</mat-icon>
+                                </button>
+                                <input class="cart-item-qty-input"
+                                    type="number"
+                                    min="1"
+                                    [max]="item.product.hasStock ? item.product.stock : 99999"
+                                    [value]="item.quantity"
+                                    (change)="setQuantity(item.product.id, $event)"
+                                    (focus)="$any($event.target).select()">
+                                <button mat-icon-button
+                                    (click)="increaseQuantity(item.product.id)"
+                                    [disabled]="item.product.hasStock && item.quantity >= item.product.stock">
+                                    <mat-icon>add</mat-icon>
+                                </button>
+                                <span class="cart-item-subtotal">
+                                    {{ item.product.price * item.quantity | currency:'COP ':'symbol':'1.0-0' }}
+                                </span>
+                                <button mat-icon-button class="remove-btn"
+                                    (click)="removeFromCart(item.product.id)">
+                                    <mat-icon>close</mat-icon>
+                                </button>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <mat-divider></mat-divider>
+
+                <div class="cart-total">
+                    <span>Total</span>
+                    <span class="total-amount">{{ total | currency:'COP ':'symbol':'1.0-0' }}</span>
+                </div>
+
+                <div class="payment-section">
+                    <mat-form-field class="payment-field">
+                        <mat-label>Pago recibido</mat-label>
+                        <span matTextPrefix>$&nbsp;</span>
+                        <input matInput
+                            type="number"
+                            min="0"
+                            [formControl]="paymentControl"
+                            placeholder="0">
+                    </mat-form-field>
+
+                    @if (change !== null) {
+                        <div class="change-row">
+                            <span class="change-label">Devuelta</span>
+                            <span class="change-amount">
+                                {{ change | currency:'COP ':'symbol':'1.0-0' }}
+                            </span>
+                        </div>
+                    }
+
+                    @if (insufficientPayment) {
+                        <div class="insufficient-warning">
+                            <mat-icon>warning</mat-icon>
+                            <span>Pago insuficiente</span>
+                        </div>
+                    }
+                </div>
+
+                <div class="cart-actions">
+                    <button mat-stroked-button (click)="clearCart()">Limpiar</button>
+                    <button matButton="filled" class="confirm-btn"
+                        (click)="confirmSale()"
+                        [disabled]="cartItems.length === 0 || isLoading || insufficientPayment">
+                        @if (isLoading) {
+                            <mat-spinner diameter="20"></mat-spinner>
+                        } @else {
+                            Confirmar venta
+                        }
+                    </button>
+                </div>
+            }
+
+        </mat-card-content>
+    </mat-card>
+
+</div>

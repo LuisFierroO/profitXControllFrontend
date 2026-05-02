@@ -1,0 +1,216 @@
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { Router } from '@angular/router';
+import { ProductService } from '../../services/product.service';
+import { Product } from '../../models/product.model';
+import { debounceTime } from 'rxjs';
+import { CreateProduct } from '../create-product/create-product';
+import { EditProductDialog } from '../edit-product-dialog/edit-product-dialog';
+import { ConfirmDialogService } from '../../../../shared/services/confirm-dialog.service';
+import { BusinessContextService } from '../../../../shared/services/business-context.service';
+import { ExportService, ExportFormat, ExportColumn } from '../../../../shared/services/export.service';
+import { ExportButton } from '../../../../shared/components/export-button/export-button';
+import { ImportButton } from '../../../../shared/components/import-button/import-button';
+import { ImportService } from '../../../../shared/services/import.service';
+import { ImportPreviewDialog } from '../../../../shared/components/import-preview-dialog/import-preview-dialog';
+import { from, of, concatMap, toArray, catchError } from 'rxjs';
+
+@Component({
+    selector: 'app-products',
+    standalone: true,
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        MatButtonModule,
+        MatCardModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatIconModule,
+        MatSnackBarModule,
+        MatDialogModule,
+        ExportButton,
+        ImportButton,
+    ],
+    templateUrl: './products.html',
+    styleUrl: './products.scss',
+})
+export class Products implements OnInit {
+
+    
+    private dialog = inject(MatDialog);
+    private productService = inject(ProductService);
+    private snackBar = inject(MatSnackBar);
+    private confirmDialog = inject(ConfirmDialogService);
+    private exportService = inject(ExportService);
+    private importService = inject(ImportService);
+    protected context = inject(BusinessContextService);
+
+    private readonly exportColumns: ExportColumn[] = [
+        { key: 'name',        header: 'Nombre' },
+        { key: 'description', header: 'Descripción' },
+        { key: 'price',       header: 'Precio',        format: v => Number(v) },
+        { key: 'hasStock',    header: 'Maneja Stock',  format: v => (v ? 'Sí' : 'No') },
+        { key: 'stock',       header: 'Stock Inicial', format: v => Number(v) },
+    ];
+
+    myControl = new FormControl('');
+    businessId!: string;
+    allProducts = signal<Product[]>([]);
+    filteredProducts = signal<Product[]>([]);
+
+    readonly placeholder = 'data:image/svg+xml;base64,' + btoa(
+        '<svg xmlns="http://www.w3.org/2000/svg" width="165" height="132">' +
+        '<rect width="165" height="132" fill="#e0e0e0"/>' +
+        '<text x="82" y="71" text-anchor="middle" font-family="sans-serif" font-size="13" fill="#9e9e9e">Sin imagen</text>' +
+        '</svg>'
+    );
+
+    get canManageImports(): boolean {
+        return this.context.role() === 'OWNER';
+    }
+
+    ngOnInit(): void {
+        const id = localStorage.getItem('currentBusinessId');
+        if (!id) {
+            this.snackBar.open('No se encontro el negocio', 'Cerrar', { duration: 3000 });
+            return;
+        }
+        this.businessId = id;
+        this.loadProducts();
+        this.myControl.valueChanges
+            .pipe(debounceTime(250))
+            .subscribe(term => this.filterProducts(term ?? ''));
+    }
+
+    private loadProducts(): void {
+        this.productService.findByBusiness(this.businessId).subscribe({
+            next: products => {
+                this.allProducts.set(products);
+                this.filteredProducts.set(products);
+            },
+            error: () => this.snackBar.open('Error al cargar los productos', 'Cerrar', { duration: 3000 })
+        });
+    }
+
+    private filterProducts(term: string): void {
+        const lower = term.toLowerCase().trim();
+        this.filteredProducts.set(
+            lower ? this.allProducts().filter(p => p.name.toLowerCase().includes(lower))
+                  : this.allProducts()
+        );
+    }
+
+    onImgError(event: Event): void {
+        const img = event.target as HTMLImageElement;
+        img.onerror = null;
+        img.src = this.placeholder;
+    }
+
+    addProduct(): void {
+        const dialogRef = this.dialog.open(CreateProduct, {
+        width: '1000px',
+        maxHeight: '100vh',
+        panelClass: 'custom-dialog',
+        disableClose: true
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+        if (result) {
+            this.loadProducts(); // 👈 recargar lista
+        }
+    });
+}
+
+    editProduct(product: Product): void {
+        const ref = this.dialog.open(EditProductDialog, {
+            width: '520px',
+            data: { product, businessId: this.businessId }
+        });
+ 
+        ref.afterClosed().subscribe(updated => {
+            if (updated) this.loadProducts();
+        });
+    }
+
+    onImport(file: File): void {
+        this.importService.readFile(file).then(rows => {
+            const { valid, errors } = this.importService.validateProductRows(rows);
+
+            const ref = this.dialog.open(ImportPreviewDialog, {
+                data: {
+                    title: 'Importar Productos',
+                    templateType: 'products',
+                    validCount: valid.length,
+                    errors,
+                    previewColumns: [
+                        { key: 'name',         label: 'Nombre' },
+                        { key: 'price',        label: 'Precio' },
+                        { key: 'hasStockLabel',label: 'Maneja Stock' },
+                        { key: 'initialStock', label: 'Stock Inicial' },
+                    ],
+                    previewRows: valid.map(r => ({ ...r, hasStockLabel: r.hasStock ? 'Sí' : 'No' })),
+                },
+            });
+
+            ref.afterClosed().subscribe(confirmed => {
+                if (!confirmed) return;
+                this.snackBar.open('Importando productos...', '', { duration: 0 });
+                from(valid).pipe(
+                    concatMap(row => {
+                        const form = new FormData();
+                        form.append('name',         row.name);
+                        form.append('description',  row.description);
+                        form.append('price',        String(row.price));
+                        form.append('hasStock',     String(row.hasStock));
+                        form.append('initialStock', String(row.initialStock));
+                        return this.productService.create(this.businessId, form).pipe(
+                            catchError(() => of(null))
+                        );
+                    }),
+                    toArray()
+                ).subscribe(results => {
+                    const ok  = results.filter(r => r !== null).length;
+                    const bad = results.length - ok;
+                    this.snackBar.open(
+                        `${ok} producto(s) importado(s)${bad ? `, ${bad} fallaron` : ''}`,
+                        'Cerrar', { duration: 4000 }
+                    );
+                    this.loadProducts();
+                });
+            });
+        }).catch(() => this.snackBar.open('Error al leer el archivo', 'Cerrar', { duration: 3000 }));
+    }
+
+    onExport(format: ExportFormat): void {
+        const data = this.filteredProducts() as Record<string, any>[];
+        if (!data.length) {
+            this.snackBar.open('No hay productos para exportar', 'Cerrar', { duration: 2500 });
+            return;
+        }
+        const businessName = localStorage.getItem('currentBusinessName') ?? 'negocio';
+        this.exportService.export(format, `productos_${businessName}`, this.exportColumns, data, 'Productos');
+    }
+
+    deleteProduct(product: Product): void {
+        this.confirmDialog.confirm(`¿Confirmas que deseas eliminar el producto "${product.name}"?`)
+            .subscribe(confirmed => {
+                if (!confirmed) return;
+                this.productService.delete(this.businessId, product.id).subscribe({
+                    next: () => {
+                        this.snackBar.open('Producto eliminado correctamente', 'Cerrar', { duration: 3000 });
+                        this.allProducts.update(list => list.filter(p => p.id !== product.id));
+                        this.filterProducts(this.myControl.value ?? '');
+                    },
+                    error: () => this.snackBar.open('Error al eliminar el producto', 'Cerrar', { duration: 3000 })
+                });
+            });
+    }
+}

@@ -1,0 +1,96 @@
+<div class="profitability-container">
+
+    <div class="page-header">
+        <div class="header-title">
+            <mat-icon>analytics</mat-icon>
+            <h1>Rentabilidad de productos</h1>
+        </div>
+        <p class="header-subtitle">
+            Ingresa el costo unitario de cada producto para ver su margen de ganancia.
+        </p>
+    </div>
+
+    <div class="toolbar">
+        <mat-form-field class="search-field text-field">
+            <mat-label>Buscar producto</mat-label>
+            <input matInput [formControl]="searchControl" placeholder="Nombre del producto">
+            <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        @if (activeCount() > 0) {
+        <button mat-stroked-button (click)="clearCosts()">
+            <mat-icon>clear_all</mat-icon> Limpiar costos
+        </button>
+        }
+    </div>
+
+    @if (isLoadingProducts()) {
+    <div class="state-container">
+        <mat-spinner diameter="48"></mat-spinner>
+        <p>Cargando productos...</p>
+    </div>
+    } @else if (filteredRows().length === 0) {
+    <div class="state-container">
+        <mat-icon class="empty-icon">inventory_2</mat-icon>
+        <p>No se encontraron productos</p>
+    </div>
+    } @else {
+    <div class="content-grid">
+
+        <div class="products-section">
+            <div class="section-label">
+                Productos
+                @if (activeCount() > 0) {
+                <span class="active-badge">{{ activeCount() }} con costo</span>
+                }
+            </div>
+            <div class="products-list">
+                @for (row of filteredRows(); track row.product.id) {
+                <mat-card class="product-row">
+                    <mat-card-content class="product-row-content">
+                        <img [src]="row.product.imgUrl || placeholder"
+                            class="product-img"
+                            (error)="onImgError($event)"
+                            alt="{{ row.product.name }}">
+                        <div class="product-info">
+                            <span class="product-name">{{ row.product.name }}</span>
+                            <span class="product-price">
+                                Precio venta: {{ row.product.price | currency:'COP':'symbol':'1.0-0' }}
+                            </span>
+                        </div>
+                        <mat-form-field class="cost-field text-field">
+                            <mat-label>Costo unit.</mat-label>
+                            <span matTextPrefix>$&nbsp;</span>
+                            <input matInput type="number" min="0"
+                                [value]="row.unitCost || ''"
+                                placeholder="0"
+                                (change)="updateCost(row.product.id, +$any($event.target).value)">
+                        </mat-form-field>
+                        @if (row.unitCost > 0) {
+                        <mat-icon class="cost-set-icon">check_circle</mat-icon>
+                        }
+                    </mat-card-content>
+                </mat-card>
+                }
+            </div>
+        </div>
+
+        <div class="results-section">
+            <div class="section-label">Resultados</div>
+            @if (activeCount() === 0) {
+            <div class="no-results">
+                <mat-icon>info</mat-icon>
+                <p>Ingresa el costo de al menos un producto para ver el análisis.</p>
+            </div>
+            } @else {
+            <app-profitability-panel
+                [results]="profitabilityResults()"
+                [isLoading]="isProfitabilityLoading()">
+            </app-profitability-panel>
+            }
+        </div>
+
+    </div>
+    }
+
+</div>

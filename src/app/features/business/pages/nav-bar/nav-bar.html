@@ -1,0 +1,28 @@
+<mat-card class="navbar-container">
+
+    <mat-card-content class="navbar-content">
+        <div class="logo">
+            <img src="logoNoLettersBBg.png" alt="logo" style="width: 500px; height: 500px">
+        </div>
+        <mat-label style="font-size: 25px;">{{business()?.name}}</mat-label>
+        <button matButton="elevated" class="button-navBar" (click)="sellProducts()">Vender</button>
+        <button matButton="elevated" class="button-navBar" (click)="listSales()">Ventas</button>
+
+        @if(canManage) {
+        <button matButton="elevated" class="button-navBar" (click)="listProducts()">Productos</button>
+        <button matButton="elevated" class="button-navBar" (click)="listExpenses()">Gastos</button>
+        <button matButton="elevated" class="button-navBar" (click)="profitability()">Rentabilidad</button>
+        <button matButton="elevated" class="button-navBar" (click)="metrics()">Metricas</button>
+        <button matButton="elevated" class="button-navBar" (click)="employees()">Empleados</button>
+
+        }
+        @if(isOwner) {
+        <button matButton="elevated" class="button-navBar" (click)="auditLog()">Registros</button>
+        }
+
+        <div class="button-logout">
+            <button matButton="filled" (click)="exit()">Salir</button>
+        </div>
+    </mat-card-content>
+
+</mat-card>

@@ -1,0 +1,75 @@
+<div class="audit-container">
+
+    <div class="toolbar">
+        <mat-form-field class="search-field text-field">
+            <mat-label>Buscar registro</mat-label>
+            <input matInput [formControl]="searchControl" placeholder="Usuario o descripción">
+            <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field class="date-field text-field">
+            <mat-label>Desde</mat-label>
+            <input matInput [matDatepicker]="pickerFrom" [formControl]="dateFrom">
+            <mat-datepicker-toggle matSuffix [for]="pickerFrom"></mat-datepicker-toggle>
+            <mat-datepicker #pickerFrom></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field class="date-field text-field">
+            <mat-label>Hasta</mat-label>
+            <input matInput [matDatepicker]="pickerTo" [formControl]="dateTo">
+            <mat-datepicker-toggle matSuffix [for]="pickerTo"></mat-datepicker-toggle>
+            <mat-datepicker #pickerTo></mat-datepicker>
+        </mat-form-field>
+
+        @if (hasFilters()) {
+        <button mat-icon-button matTooltip="Limpiar filtros" (click)="clearFilters()">
+            <mat-icon>filter_alt_off</mat-icon>
+        </button>
+        }
+    </div>
+
+    @if (!isLoading() && filteredLogs().length > 0) {
+    <div class="summary-bar">
+        <span>{{ filteredLogs().length }} registro(s)</span>
+    </div>
+    }
+
+    @if (isLoading()) {
+    <div class="state-container">
+        <mat-spinner diameter="48"></mat-spinner>
+        <p>Cargando registros...</p>
+    </div>
+    } @else if (filteredLogs().length === 0) {
+    <div class="state-container">
+        <mat-icon class="empty-icon">history</mat-icon>
+        <p>No se encontraron registros</p>
+    </div>
+    } @else {
+    <div class="log-list">
+        @for (entry of filteredLogs(); track entry.id) {
+        <mat-card class="log-row">
+            <span class="log-action-badge" [class]="actionClass(entry.action)">
+                {{ actionLabel(entry.action) }}
+            </span>
+            <div class="log-info">
+                <span class="log-description">{{ entry.description }}</span>
+                <span class="log-meta">{{ entry.userEmail }} · {{ entry.timestamp | date:'dd/MM/yyyy HH:mm:ss' }}</span>
+            </div>
+        </mat-card>
+        }
+    </div>
+
+    @if (totalPages() > 1) {
+    <div class="pagination">
+        <button mat-stroked-button [disabled]="currentPage() === 0" (click)="loadPage(currentPage() - 1)">
+            <mat-icon>chevron_left</mat-icon>
+        </button>
+        <span>Página {{ currentPage() + 1 }} de {{ totalPages() }}</span>
+        <button mat-stroked-button [disabled]="currentPage() >= totalPages() - 1" (click)="loadPage(currentPage() + 1)">
+            <mat-icon>chevron_right</mat-icon>
+        </button>
+    </div>
+    }
+    }
+
+</div>

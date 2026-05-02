@@ -1,0 +1,256 @@
+<div class="metrics-container">
+
+    <!-- Header -->
+    <div class="header">
+        <div class="header-left">
+            <h1>Métricas del negocio</h1>
+            @if (!dateFrom.value && !dateTo.value) {
+                <span class="period-chip">Últimos 30 días</span>
+            }
+        </div>
+        <div class="date-range">
+            <mat-form-field class="date-field text-field">
+                <mat-label>Desde</mat-label>
+                <input matInput [matDatepicker]="pickerFrom" [formControl]="dateFrom">
+                <mat-datepicker-toggle matSuffix [for]="pickerFrom"></mat-datepicker-toggle>
+                <mat-datepicker #pickerFrom></mat-datepicker>
+            </mat-form-field>
+
+            <mat-form-field class="date-field text-field">
+                <mat-label>Hasta</mat-label>
+                <input matInput [matDatepicker]="pickerTo" [formControl]="dateTo">
+                <mat-datepicker-toggle matSuffix [for]="pickerTo"></mat-datepicker-toggle>
+                <mat-datepicker #pickerTo></mat-datepicker>
+            </mat-form-field>
+
+            @if (dateFrom.value || dateTo.value) {
+                <button mat-icon-button matTooltip="Últimos 30 días" (click)="resetDates()">
+                    <mat-icon>refresh</mat-icon>
+                </button>
+            }
+        </div>
+    </div>
+
+    @if (isLoading()) {
+        <div class="loading-state">
+            <mat-spinner diameter="52"></mat-spinner>
+            <p>Cargando métricas...</p>
+        </div>
+    } @else {
+        <div class="metrics-content">
+
+            <!-- KPIs principales -->
+            <div class="kpis-grid">
+
+                <mat-card class="kpi-card revenue">
+                    <mat-card-content>
+                        <div class="kpi-header">
+                            <div class="kpi-icon-wrap">
+                                <mat-icon>trending_up</mat-icon>
+                            </div>
+                            <div class="kpi-texts">
+                                <span class="kpi-label">Ingresos</span>
+                                <span class="kpi-meta">{{ summary()?.salesCount || 0 }} ventas</span>
+                            </div>
+                        </div>
+                        <div class="kpi-value">{{ summary()?.totalRevenue || 0 | currency:'COP':'symbol':'1.0-0' }}</div>
+                    </mat-card-content>
+                </mat-card>
+
+                <mat-card class="kpi-card expenses">
+                    <mat-card-content>
+                        <div class="kpi-header">
+                            <div class="kpi-icon-wrap">
+                                <mat-icon>trending_down</mat-icon>
+                            </div>
+                            <div class="kpi-texts">
+                                <span class="kpi-label">Gastos</span>
+                                <span class="kpi-meta">{{ summary()?.expensesCount || 0 }} gastos</span>
+                            </div>
+                        </div>
+                        <div class="kpi-value">{{ summary()?.totalExpenses || 0 | currency:'COP':'symbol':'1.0-0' }}</div>
+                    </mat-card-content>
+                </mat-card>
+
+                <mat-card class="kpi-card profit" [class.negative]="(summary()?.netProfit || 0) < 0">
+                    <mat-card-content>
+                        <div class="kpi-header">
+                            <div class="kpi-icon-wrap">
+                                <mat-icon>account_balance_wallet</mat-icon>
+                            </div>
+                            <div class="kpi-texts">
+                                <span class="kpi-label">Ganancia neta</span>
+                                <span class="kpi-meta">{{ (summary()?.netProfit || 0) >= 0 ? 'Superávit' : 'Déficit' }}</span>
+                            </div>
+                        </div>
+                        <div class="kpi-value">{{ summary()?.netProfit || 0 | currency:'COP':'symbol':'1.0-0' }}</div>
+                        <div class="margin-chip" [class.positive]="profitMargin >= 0" [class.negative]="profitMargin < 0">
+                            <mat-icon>{{ profitMargin >= 0 ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+                            {{ profitMargin | number:'1.1-1' }}% margen
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+
+                <mat-card class="kpi-card ticket">
+                    <mat-card-content>
+                        <div class="kpi-header">
+                            <div class="kpi-icon-wrap">
+                                <mat-icon>receipt_long</mat-icon>
+                            </div>
+                            <div class="kpi-texts">
+                                <span class="kpi-label">Ticket promedio</span>
+                                <span class="kpi-meta">Por venta</span>
+                            </div>
+                        </div>
+                        <div class="kpi-value">{{ summary()?.averageTicket || 0 | currency:'COP':'symbol':'1.0-0' }}</div>
+                    </mat-card-content>
+                </mat-card>
+
+            </div>
+
+            <!-- Gráfico de tendencia -->
+            <mat-card class="chart-card">
+                <mat-card-content>
+                    <h2>Tendencia temporal</h2>
+                    <canvas #chartCanvas [hidden]="timeSeriesData().length === 0"></canvas>
+                    @if (timeSeriesData().length === 0) {
+                        <div class="empty-chart">
+                            <mat-icon>show_chart</mat-icon>
+                            <p>No hay datos en este período</p>
+                        </div>
+                    }
+                </mat-card-content>
+            </mat-card>
+
+            <!-- Grid: Top productos + Desglose de gastos -->
+            <div class="two-col-grid">
+
+                <!-- Top productos -->
+                <mat-card class="top-products-card">
+                    <mat-card-content>
+                        <div class="card-header">
+                            <h2>Top productos</h2>
+                            <mat-button-toggle-group [value]="topProductsSort()"
+                                (change)="setTopProductsSort($event.value)">
+                                <mat-button-toggle value="quantity">Más vendidos</mat-button-toggle>
+                                <mat-button-toggle value="revenue">Más rentables</mat-button-toggle>
+                            </mat-button-toggle-group>
+                        </div>
+
+                        @if (topProducts().length === 0) {
+                            <div class="empty-state-small">
+                                <mat-icon>inventory_2</mat-icon>
+                                <p>Sin datos en este período</p>
+                            </div>
+                        } @else {
+                            <div class="products-list">
+                                @for (product of topProducts(); track product.productId; let i = $index) {
+                                    <div class="product-row">
+                                        <span class="rank"
+                                            [class.rank-gold]="i === 0"
+                                            [class.rank-silver]="i === 1"
+                                            [class.rank-bronze]="i === 2">#{{ i + 1 }}</span>
+                                        <img [src]="product.imgUrl || placeholder"
+                                            class="product-img"
+                                            (error)="onImgError($event)"
+                                            alt="{{ product.productName }}">
+                                        <div class="product-info">
+                                            <span class="product-name">{{ product.productName }}</span>
+                                            <span class="product-stats">
+                                                {{ product.totalQuantity }} uds · {{ product.totalRevenue | currency:'COP':'symbol':'1.0-0' }}
+                                            </span>
+                                            <div class="product-bar-track">
+                                                <div class="product-bar-fill" [style.width.%]="getProductBarWidth(product)"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </mat-card-content>
+                </mat-card>
+
+                <!-- Desglose de gastos -->
+                <mat-card class="breakdown-card">
+                    <mat-card-content>
+                        <h2>Desglose de gastos</h2>
+                        @if (expenseBreakdown().every(e => e.total === 0)) {
+                            <div class="empty-state-small">
+                                <mat-icon>pie_chart</mat-icon>
+                                <p>Sin gastos registrados</p>
+                            </div>
+                        } @else {
+                            <div class="expense-proportion-bar"
+                                [matTooltip]="'Simples ' + (simpleExpensePercent | number:'1.0-0') + '% · Inventario ' + (100 - simpleExpensePercent | number:'1.0-0') + '%'">
+                                <div class="bar-fill simple" [style.width.%]="simpleExpensePercent"></div>
+                                <div class="bar-fill inventory" [style.width.%]="100 - simpleExpensePercent"></div>
+                            </div>
+                            <div class="breakdown-content">
+                                @for (item of expenseBreakdown(); track item.type) {
+                                    <div class="breakdown-row">
+                                        <div class="breakdown-label">
+                                            <span class="breakdown-dot"
+                                                [class.simple]="item.type === 'SIMPLE'"
+                                                [class.inventory]="item.type === 'INVENTORY'"></span>
+                                            <span>{{ item.type === 'SIMPLE' ? 'Gastos simples' : 'Compra inventario' }}</span>
+                                        </div>
+                                        <div class="breakdown-value">
+                                            <strong>{{ item.total | currency:'COP':'symbol':'1.0-0' }}</strong>
+                                            <span class="breakdown-pct">{{ getExpensePercent(item) | number:'1.0-0' }}%</span>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </mat-card-content>
+                </mat-card>
+
+            </div>
+
+            <!-- Alertas de inventario -->
+            <mat-card class="alerts-card">
+                <mat-card-content>
+                    <div class="card-header">
+                        <h2>Alertas de inventario</h2>
+                        @if (stockAlerts().length > 0) {
+                            <span class="alert-count-badge">{{ stockAlerts().length }}</span>
+                        }
+                    </div>
+                    @if (stockAlerts().length === 0) {
+                        <div class="empty-state-small">
+                            <mat-icon class="success-icon">check_circle</mat-icon>
+                            <p>Todo en orden — sin alertas activas</p>
+                        </div>
+                    } @else {
+                        <div class="alerts-grid">
+                            @for (alert of stockAlerts(); track alert.productId) {
+                                <mat-card class="alert-item">
+                                    <mat-card-content>
+                                        <div class="alert-inner">
+                                            <div class="alert-icon-wrap" [ngClass]="getAlertClass(alert.level)">
+                                                <mat-icon>{{ getAlertIcon(alert.level) }}</mat-icon>
+                                            </div>
+                                            <div class="alert-body">
+                                                <span class="alert-product">{{ alert.productName }}</span>
+                                                <span class="alert-message">{{ getAlertMessage(alert) }}</span>
+                                                <span class="alert-label" [ngClass]="getAlertClass(alert.level)">
+                                                    {{ getAlertLabel(alert.level) }}
+                                                </span>
+                                            </div>
+                                            <img [src]="alert.imgUrl || placeholder"
+                                                class="alert-img"
+                                                (error)="onImgError($event)"
+                                                alt="">
+                                        </div>
+                                    </mat-card-content>
+                                </mat-card>
+                            }
+                        </div>
+                    }
+                </mat-card-content>
+            </mat-card>
+
+        </div>
+    }
+
+</div>

@@ -1,0 +1,65 @@
+<div class="products-container">
+
+    <div class="toolbar">
+        <mat-form-field class="search-form text-field">
+            <mat-label>Buscar producto</mat-label>
+            <input type="text" matInput [formControl]="myControl" placeholder="Ingrese el nombre del producto">
+            <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+
+        <div class="toolbar-actions">
+            @if(canManageImports) {
+            <app-import-button (fileSelected)="onImport($event)"></app-import-button>
+            <app-export-button [disabled]="filteredProducts().length === 0" (exportSelected)="onExport($event)">
+            </app-export-button>
+            }
+            <button matButton="filled" (click)="addProduct()">Agregar producto</button>
+
+        </div>
+
+
+    </div>
+
+    <div class="products-grid">
+        @for (product of filteredProducts(); track product.id) {
+        <mat-card class="product-card">
+            <mat-card-content>
+
+                <img [src]="product.imgUrl || placeholder" class="img-product" alt="{{ product.name }}"
+                    (error)="onImgError($event)">
+
+                <div class="product-info">
+                    <h3>{{ product.name }}</h3>
+                    <p>{{ product.description }}</p>
+                    <span class="product-price">
+                        {{ product.price | currency:'COP ':'symbol':'1.0-0' }}
+                    </span>
+                    @if (product.hasStock) {
+                    <span class="product-stock" [class.low-stock]="product.stock <= 5 && product.stock > 0"
+                        [class.no-stock]="product.stock === 0">
+                        @if (product.stock === 0) {
+                        Sin stock
+                        } @else if (product.stock <= 5) { Solo {{ product.stock }} disponibles } @else { Stock: {{
+                            product.stock }} } </span>
+                            }
+                </div>
+
+                <div class="product-actions">
+                    <button mat-stroked-button (click)="editProduct(product)">Editar</button>
+                    <button mat-button class="delete-btn" (click)="deleteProduct(product)">Eliminar</button>
+                </div>
+
+            </mat-card-content>
+        </mat-card>
+        }
+
+        @if (filteredProducts().length === 0) {
+        <div class="empty-state">
+            <mat-icon>inventory_2</mat-icon>
+            <p>No se encontraron productos</p>
+        </div>
+        }
+    </div>
+
+</div>

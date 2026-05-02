@@ -1,0 +1,231 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+
+.profitability-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    padding: 20px;
+    gap: 16px;
+}
+
+// ── Header ────────────────────────────────────────────────────────────────────
+
+.page-header {
+    flex-shrink: 0;
+}
+
+.header-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    mat-icon {
+        font-size: 28px;
+        width: 28px;
+        height: 28px;
+        color: #5c6bc0;
+    }
+
+    h1 {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 500;
+    }
+}
+
+.header-subtitle {
+    margin: 4px 0 0 38px;
+    font-size: 13px;
+    color: gray;
+}
+
+// ── Toolbar ───────────────────────────────────────────────────────────────────
+
+.toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+}
+
+.search-field {
+    flex: 1;
+    min-width: 200px;
+    max-width: 360px;
+}
+
+// ── Estado ────────────────────────────────────────────────────────────────────
+
+.state-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    gap: 16px;
+    color: gray;
+}
+
+.empty-icon {
+    font-size: 56px;
+    width: 56px;
+    height: 56px;
+    color: lightgray;
+}
+
+// ── Grid de contenido ─────────────────────────────────────────────────────────
+
+.content-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    flex: 1;
+    overflow: hidden;
+    min-height: 0;
+}
+
+// ── Sección productos ─────────────────────────────────────────────────────────
+
+.section-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #424242;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.active-badge {
+    background: #e8f5e9;
+    color: #2e7d32;
+    border-radius: 10px;
+    padding: 1px 8px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.products-section {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+}
+
+.products-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.product-row {
+    flex-shrink: 0;
+}
+
+.product-row-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+}
+
+.product-img {
+    width: 44px;
+    height: 44px;
+    object-fit: cover;
+    border-radius: 6px;
+    background: #f0f0f0;
+    flex-shrink: 0;
+}
+
+.product-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.product-name {
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.product-price {
+    font-size: 12px;
+    color: gray;
+}
+
+.cost-field {
+    width: 130px;
+    flex-shrink: 0;
+}
+
+.cost-set-icon {
+    color: #2e7d32;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+// ── Sección resultados ────────────────────────────────────────────────────────
+
+.results-section {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+.no-results {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex: 1;
+    color: gray;
+    padding: 40px 0;
+    text-align: center;
+
+    mat-icon {
+        font-size: 36px;
+        width: 36px;
+        height: 36px;
+        color: #bdbdbd;
+    }
+
+    p {
+        margin: 0;
+        font-size: 13px;
+        max-width: 200px;
+        line-height: 1.5;
+    }
+}
+
+// ── Responsive ────────────────────────────────────────────────────────────────
+
+@media (max-width: 860px) {
+    .content-grid {
+        grid-template-columns: 1fr;
+        overflow-y: auto;
+    }
+
+    .products-section,
+    .results-section {
+        overflow: visible;
+    }
+}

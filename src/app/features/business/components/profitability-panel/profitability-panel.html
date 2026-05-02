@@ -1,0 +1,57 @@
+@if (isLoading()) {
+<div class="profit-loading">
+    <mat-spinner diameter="16"></mat-spinner>
+    <span>Calculando rentabilidad...</span>
+</div>
+} @else if (results().length > 0) {
+<div class="profitability-section">
+    <div class="profit-section-header">
+        <mat-icon class="profit-icon">analytics</mat-icon>
+        <span>Análisis de rentabilidad</span>
+        @if (hasBadProfitability()) {
+        <span class="profit-warning-tag">
+            <mat-icon>warning</mat-icon>
+            Revisa los precios
+        </span>
+        }
+    </div>
+
+    @for (r of results(); track r.productId) {
+    <div class="profit-row">
+        <div class="profit-name-col">
+            <span class="profit-product-name">{{ r.productName }}</span>
+            <span class="profit-verdict-badge" [ngClass]="getProfitClass(r.verdict)">
+                {{ getProfitLabel(r.verdict) }}
+            </span>
+        </div>
+        <div class="profit-stats">
+            <div class="profit-stat">
+                <span class="stat-label">Precio venta</span>
+                <span class="stat-value">{{ r.salePrice | currency:'COP':'symbol':'1.0-0' }}</span>
+            </div>
+            <div class="profit-stat">
+                <span class="stat-label">Ganancia/u</span>
+                <span class="stat-value" [class.stat-positive]="r.profitable"
+                    [class.stat-negative]="!r.profitable">
+                    {{ r.grossProfitPerUnit | currency:'COP':'symbol':'1.0-0' }}
+                </span>
+            </div>
+            <div class="profit-stat">
+                <span class="stat-label">Margen</span>
+                <span class="stat-value" [class.stat-positive]="r.profitable"
+                    [class.stat-negative]="!r.profitable">
+                    {{ r.marginPercent | number:'1.1-1' }}%
+                </span>
+            </div>
+            <div class="profit-stat">
+                <span class="stat-label">Markup</span>
+                <span class="stat-value" [class.stat-positive]="r.profitable"
+                    [class.stat-negative]="!r.profitable">
+                    {{ r.markupPercent | number:'1.1-1' }}%
+                </span>
+            </div>
+        </div>
+    </div>
+    }
+</div>
+}
