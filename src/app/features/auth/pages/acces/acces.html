@@ -1,23 +1,35 @@
 <div class="acces-container">
 
     @if (sessionExpired()) {
-        <div class="expired-banner">
-            <div class="expired-icon-wrap">
-                <mat-icon>lock_clock</mat-icon>
-            </div>
-            <div class="expired-text">
-                <strong>Tu sesión ha expirado</strong>
-                <span>Por seguridad, las sesiones tienen una duración limitada. Vuelve a iniciar sesión para continuar.</span>
-            </div>
-            <button class="expired-close" (click)="dismissExpired()">
-                <mat-icon>close</mat-icon>
-            </button>
+    <div class="expired-banner">
+        <div class="expired-icon-wrap">
+            <mat-icon>lock_clock</mat-icon>
         </div>
+        <div class="expired-text">
+            <strong>Tu sesión ha expirado</strong>
+            <span>Por seguridad, las sesiones tienen una duración limitada. Vuelve a iniciar sesión para
+                continuar.</span>
+        </div>
+        <button class="expired-close" (click)="dismissExpired()">
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
     }
 
+    <div class="mobile-switcher">
+        <button class="switcher-btn" [class.active]="loginActive" (click)="changeToLogin()">Iniciar sesión</button>
+        <button class="switcher-btn" [class.active]="registerActive" (click)="changeToRegister()">Registrarse</button>
+    </div>
+
     <mat-card class="acces-content" [class.register-active]="registerActive" [class.login-active]="loginActive">
-        <app-login></app-login>
-        <app-register></app-register>
+
+        <div class="login-content">
+            <app-login></app-login>
+        </div>
+
+        <div class="register-content">
+            <app-register></app-register>
+        </div>
 
         <mat-card class="right-panel">
             <h1 style="color: white;">Eres nuevo?</h1>

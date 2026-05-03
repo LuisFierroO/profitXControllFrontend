@@ -229,3 +229,18 @@
         overflow: visible;
     }
 }
+
+@media (max-width: 599px) {
+    .profitability-container {
+        padding: 12px;
+        gap: 12px;
+    }
+
+    .header-subtitle {
+        margin-left: 0;
+    }
+
+    .search-field {
+        max-width: 100%;
+    }
+}

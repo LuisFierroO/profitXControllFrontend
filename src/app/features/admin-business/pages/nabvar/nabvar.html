@@ -1,9 +1,17 @@
-<mat-card class="navbar-container">
+<button class="menu-toggle" (click)="toggleMenu()" [attr.aria-expanded]="menuOpen()" aria-label="Abrir menú">
+    <mat-icon>{{ menuOpen() ? 'close' : 'menu' }}</mat-icon>
+</button>
+
+@if (menuOpen()) {
+    <div class="menu-backdrop" (click)="toggleMenu()"></div>
+}
+
+<mat-card class="navbar-container" [class.is-open]="menuOpen()">
     <mat-card-content class="navbar-content">
         <div class="logo">
-            <img src="logoNoLettersBBg.png" alt="logo" style="width: 100px; height: 100px">
+            <img src="logoNoLettersBBg.png" alt="logo" class="logo-img">
         </div>
-        <mat-label style="font-size: 25px;">{{nameUser()}}</mat-label>
+        <mat-label class="user-name">{{nameUser()}}</mat-label>
         <button matButton="elevated" class="button-navBar" (click)="listBusiness()">Mis negocios</button>
         <button matButton="elevated" class="button-navBar" (click)="createBusiness()">Crear negocio</button>
         <div class="button-logout">

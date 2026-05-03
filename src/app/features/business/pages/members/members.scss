@@ -230,3 +230,24 @@
     height: 22px !important;
     flex-shrink: 0;
 }
+
+@media (max-width: 599px) {
+    .toolbar {
+        padding: 12px 12px 6px;
+        gap: 8px;
+    }
+
+    .members-list {
+        padding: 8px 12px 16px;
+    }
+
+    .member-content {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .member-info {
+        min-width: 0;
+        flex-basis: calc(100% - 60px);
+    }
+}

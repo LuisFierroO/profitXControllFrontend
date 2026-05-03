@@ -1,28 +1,33 @@
-<mat-card class="navbar-container">
+<button class="menu-toggle" (click)="toggleMenu()" [attr.aria-expanded]="menuOpen()" aria-label="Abrir menú">
+    <mat-icon>{{ menuOpen() ? 'close' : 'menu' }}</mat-icon>
+</button>
 
+@if (menuOpen()) {
+    <div class="menu-backdrop" (click)="toggleMenu()"></div>
+}
+
+<mat-card class="navbar-container" [class.is-open]="menuOpen()">
     <mat-card-content class="navbar-content">
         <div class="logo">
-            <img src="logoNoLettersBBg.png" alt="logo" style="width: 100px; height: 100px">
+            <img src="logoNoLettersBBg.png" alt="logo" class="logo-img">
         </div>
-        <mat-label style="font-size: 25px;">{{business()?.name}}</mat-label>
+        <mat-label class="business-name">{{business()?.name}}</mat-label>
         <button matButton="elevated" class="button-navBar" (click)="sellProducts()">Vender</button>
         <button matButton="elevated" class="button-navBar" (click)="listSales()">Ventas</button>
 
         @if(canManage) {
-        <button matButton="elevated" class="button-navBar" (click)="listProducts()">Productos</button>
-        <button matButton="elevated" class="button-navBar" (click)="listExpenses()">Gastos</button>
-        <button matButton="elevated" class="button-navBar" (click)="profitability()">Rentabilidad</button>
-        <button matButton="elevated" class="button-navBar" (click)="metrics()">Metricas</button>
-        <button matButton="elevated" class="button-navBar" (click)="employees()">Empleados</button>
-
+            <button matButton="elevated" class="button-navBar" (click)="listProducts()">Productos</button>
+            <button matButton="elevated" class="button-navBar" (click)="listExpenses()">Gastos</button>
+            <button matButton="elevated" class="button-navBar" (click)="profitability()">Rentabilidad</button>
+            <button matButton="elevated" class="button-navBar" (click)="metrics()">Metricas</button>
+            <button matButton="elevated" class="button-navBar" (click)="employees()">Empleados</button>
         }
         @if(isOwner) {
-        <button matButton="elevated" class="button-navBar" (click)="auditLog()">Registros</button>
+            <button matButton="elevated" class="button-navBar" (click)="auditLog()">Registros</button>
         }
 
         <div class="button-logout">
             <button matButton="filled" (click)="exit()">Salir</button>
         </div>
     </mat-card-content>
-
 </mat-card>

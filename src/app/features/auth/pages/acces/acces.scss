@@ -5,7 +5,9 @@
     background: radial-gradient(#250059 50%, black);
     align-items: center;
     width: 100%;
-    height: 100%;
+    min-height: 100dvh;
+    padding: clamp(1rem, 4vw, 2rem);
+    box-sizing: border-box;
 }
 
 // ── Banner de sesión expirada ──────────────────────────────────────────────────
@@ -13,27 +15,35 @@
 .expired-banner {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 12px;
     background: rgba(20, 10, 40, 0.75);
     border: 1px solid rgba(230, 81, 0, 0.6);
     backdrop-filter: blur(8px);
     color: white;
-    padding: 16px 20px;
+    padding: clamp(10px, 3vw, 16px) clamp(12px, 4vw, 20px);
     border-radius: 14px;
     max-width: 640px;
-    width: 90%;
-    margin-bottom: 24px;
+    width: 100%;
+    margin-bottom: 20px;
     animation: banner-slide-in 0.35s ease;
 }
 
 @keyframes banner-slide-in {
-    from { opacity: 0; transform: translateY(-16px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(-16px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .expired-icon-wrap {
-    width: 48px;
-    height: 48px;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
     border-radius: 12px;
     background: rgba(230, 81, 0, 0.2);
     border: 1px solid rgba(230, 81, 0, 0.4);
@@ -43,9 +53,9 @@
     flex-shrink: 0;
 
     mat-icon {
-        font-size: 26px;
-        width: 26px;
-        height: 26px;
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
         color: #ff9800;
     }
 }
@@ -55,14 +65,16 @@
     flex-direction: column;
     gap: 3px;
     flex: 1;
+    min-width: 0;
 
     strong {
-        font-size: 14px;
+        font-size: clamp(12px, 3vw, 14px);
         font-weight: 700;
         color: #ffcc80;
     }
+
     span {
-        font-size: 12px;
+        font-size: clamp(11px, 2.5vw, 12px);
         opacity: 0.8;
         line-height: 1.4;
     }
@@ -80,10 +92,50 @@
     opacity: 0.6;
     transition: opacity 0.2s, background 0.2s;
     flex-shrink: 0;
+    min-width: 44px;
+    min-height: 44px;
 
-    &:hover { opacity: 1; background: rgba(255, 255, 255, 0.1); }
+    &:hover {
+        opacity: 1;
+        background: rgba(255, 255, 255, 0.1);
+    }
 
-    mat-icon { font-size: 20px; width: 20px; height: 20px; color: white; }
+    mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+        color: white;
+    }
+}
+
+// ── Mobile tab switcher (hidden on desktop) ───────────────────────────────────
+
+.mobile-switcher {
+    display: none;
+    gap: 0;
+    border-radius: 999px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    margin-bottom: 16px;
+    flex-shrink: 0;
+
+    .switcher-btn {
+        flex: 1;
+        padding: 10px 28px;
+        background: transparent;
+        border: none;
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.3s, color 0.3s;
+        white-space: nowrap;
+
+        &.active {
+            background: #3f008d;
+            color: white;
+        }
+    }
 }
 
 // ── Tarjeta principal ──────────────────────────────────────────────────────────
@@ -92,14 +144,33 @@
     display: flex;
     flex-direction: row;
     justify-content: center;
-    width: 80%;
-    height: 80vh;
+    width: min(95%, 1400px);
+    height: 85vh;
     position: relative;
     border-radius: 1.2rem;
+    overflow: hidden;
 }
 
 app-login,
 app-register {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: transform 1s ease, opacity 0.5s ease, visibility 1s ease;
+}
+
+app-login {
+    width: 80%;
+    height: 80%;
+}
+
+app-register {
+    width: 80%;
+    height: 80%;
+}
+
+.login-content,
+.register-content {
     flex: 1;
     display: flex;
     justify-content: center;
@@ -162,10 +233,60 @@ app-register {
     visibility: hidden;
 }
 
-app-register {
-    transition: transform 1s ease, opacity 0.5s ease, visibility 1s ease;
+// ── Tablet (768px – 1023px) ───────────────────────────────────────────────────
+
+@media (min-width: 768px) and (max-width: 1023px) {
+    .acces-content {
+        width: 92%;
+        height: 75vh;
+    }
 }
 
-app-login {
-    transition: transform 1s ease, opacity 0.5s ease, visibility 1s ease;
+// ── Mobile (< 768px) ─────────────────────────────────────────────────────────
+
+@media (max-width: 767px) {
+    .acces-container {
+        justify-content: flex-start;
+        padding-top: clamp(2rem, 8vw, 3.5rem);
+    }
+
+    .mobile-switcher {
+        display: flex;
+    }
+
+    .acces-content {
+        width: 100%;
+        height: auto;
+        flex-direction: column;
+        overflow: visible;
+        position: static;
+        border-radius: 1.2rem;
+    }
+
+    .left-panel,
+    .right-panel {
+        display: none !important;
+    }
+
+    .acces-content.login-active .register-content {
+        display: none;
+    }
+
+    .acces-content.register-active .login-content {
+        display: none;
+    }
+
+    .acces-content.login-active app-register,
+    .acces-content.register-active app-login {
+        transform: none !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+
+    app-login,
+    app-register {
+        width: 100%;
+        height: auto;
+        transition: none;
+    }
 }

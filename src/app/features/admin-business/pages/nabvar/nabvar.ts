@@ -3,6 +3,7 @@ import { MatCard, MatCardContent } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatLabel } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { UserService } from '../../../../shared/services/user.service';
 
@@ -14,6 +15,7 @@ import { UserService } from '../../../../shared/services/user.service';
         MatCardContent,
         MatFormFieldModule,
         MatLabel,
+        MatIconModule,
     ],
     templateUrl: './nabvar.html',
     styleUrl: './nabvar.scss',
@@ -21,6 +23,7 @@ import { UserService } from '../../../../shared/services/user.service';
 export class Nabvar implements OnInit {
 
     nameUser    = signal<String | null>(null);
+    menuOpen    = signal(false);
     userService = inject(UserService);
 
     constructor(private router: Router) {}
@@ -32,10 +35,20 @@ export class Nabvar implements OnInit {
         });
     }
 
-    listBusiness()   { this.router.navigate(['app/bussines/list']); }
-    createBusiness() { this.router.navigate(['app/bussines/create']); }
+    toggleMenu(): void { this.menuOpen.set(!this.menuOpen()); }
+
+    listBusiness(): void {
+        this.menuOpen.set(false);
+        this.router.navigate(['app/bussines/list']);
+    }
+
+    createBusiness(): void {
+        this.menuOpen.set(false);
+        this.router.navigate(['app/bussines/create']);
+    }
 
     exit(): void {
+        this.menuOpen.set(false);
         localStorage.clear();
         this.router.navigate(['/']);
     }

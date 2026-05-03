@@ -20,24 +20,24 @@
     flex: 1;
     gap: 12px;
     overflow: hidden;
+    min-width: 0;
 }
 
 .search-form { width: 100%; }
 .text-field  { width: 100%; }
 
 .products-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(190px, calc(50% - 8px)), 1fr));
+    gap: 12px;
     overflow-y: auto;
     flex: 1;
     padding: 4px;
     align-content: flex-start;
 }
 
-// +10%: 180 * 1.1 = 198px
 .product-card {
-    width: 198px;
+    width: 100%;
     cursor: pointer;
     position: relative;
     transition: transform 0.15s ease, box-shadow 0.15s ease;
@@ -63,10 +63,9 @@
     }
 }
 
-// +10%: 150*1.1=165, 120*1.1=132
 .img-product {
-    width: 165px;
-    height: 132px;
+    width: 100%;
+    aspect-ratio: 5 / 4;
     object-fit: cover;
     border-radius: 5px;
     background-color: #f0f0f0;
@@ -178,14 +177,11 @@
 }
 
 .cart-items {
-
     display: flex;
     flex-direction: column;
     gap: 8px;
     width: 100%;
-    
     overflow-y: auto;
-    
     overflow-x: hidden;
     flex: 1;
 }
@@ -315,5 +311,35 @@
         font-size: 18px;
         width: 18px;
         height: 18px;
+    }
+}
+
+// ── Mobile: stacked layout (< 768px) ─────────────────────────────────────────
+
+@media (max-width: 767px) {
+    .sale-container {
+        flex-direction: column;
+        padding: 12px;
+        gap: 12px;
+        overflow: hidden;
+    }
+
+    .catalog-panel {
+        flex: 1;
+        min-height: 0;
+        gap: 8px;
+    }
+
+    .products-grid {
+        padding: 0;
+        gap: 8px;
+    }
+
+    .cart-panel {
+        width: 100%;
+        min-width: 0;
+        margin: 0;
+        height: clamp(220px, 40dvh, 340px);
+        flex-shrink: 0;
     }
 }

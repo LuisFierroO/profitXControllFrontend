@@ -2,7 +2,7 @@
     display: flex;
     flex-direction: column;
     gap: 4px;
-    min-width: 480px;
+    width: clamp(280px, 90vw, 480px);
     padding: 8px 24px;
 }
 
@@ -21,8 +21,8 @@
 }
 
 .img-preview {
-    width: 220px;
-    height: 165px;
+    width: min(220px, 100%);
+    aspect-ratio: 4 / 3;
     object-fit: cover;
     border-radius: 6px;
     background-color: #f0f0f0;

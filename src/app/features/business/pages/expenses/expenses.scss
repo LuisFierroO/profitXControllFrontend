@@ -374,6 +374,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    flex-wrap: wrap;
 }
 
 .inv-item-name {
@@ -424,7 +425,7 @@
 // ── Picker de productos ───────────────────────────────────────────────────────
 
 .picker-card {
-    width: 400px;
+    width: min(400px, 95vw);
 }
 
 .product-picker-list {
@@ -490,5 +491,28 @@
     font-size: 20px;
     width: 20px;
     height: 20px;
+}
+
+@media (max-width: 599px) {
+    .toolbar {
+        padding: 12px 12px 6px;
+        gap: 8px;
+    }
+
+    .expenses-list {
+        padding: 8px 12px 16px;
+    }
+
+    .type-selector {
+        flex-direction: column;
+    }
+
+    .inv-item-name {
+        width: 100%;
+    }
+
+    .inv-subtotal {
+        margin-left: auto;
+    }
 }
 

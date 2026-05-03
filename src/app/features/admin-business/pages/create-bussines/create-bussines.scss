@@ -13,7 +13,7 @@
     justify-content: center;
     align-items: center;
     gap: 20px;
-    padding: 20px;
+    padding: clamp(12px, 4vw, 24px);
 }
 
 .create-bussines-card {
@@ -56,15 +56,15 @@
 }
 
 .img-preview {
-    width: 300px;
-    height: 200px;
+    width: min(300px, 100%);
+    aspect-ratio: 3 / 2;
     object-fit: cover;
     border-radius: 5px;
 }
 
 .img-placeholder {
-    width: 300px;
-    height: 200px;
+    width: min(300px, 100%);
+    aspect-ratio: 3 / 2;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -94,4 +94,19 @@
     align-items: center;
     gap: 12px;
     margin-top: 8px;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 479px) {
+    :host {
+        align-items: flex-start;
+    }
+
+    .buttons-row {
+        justify-content: stretch;
+
+        button {
+            flex: 1;
+        }
+    }
 }

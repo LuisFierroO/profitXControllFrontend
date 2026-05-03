@@ -127,4 +127,21 @@
     flex-shrink: 0;
     font-size: 13px;
     color: gray;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 599px) {
+    .toolbar {
+        padding: 12px 12px 6px;
+        gap: 8px;
+    }
+
+    .date-field {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .log-list {
+        padding: 8px 12px 16px;
+    }
 }
