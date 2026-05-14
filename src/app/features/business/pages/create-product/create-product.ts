@@ -6,7 +6,6 @@ import {
     FormGroup,
     FormArray,
     Validators,
-    AbstractControl,
 } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -16,8 +15,9 @@ import { MatSlideToggleModule, MatSlideToggleChange } from '@angular/material/sl
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { ProductService } from '../../services/product.service';
+import { BusinessPriceTypeService } from '../../services/business-price-type.service';
+import { BusinessPriceType } from '../../models/business-price-type.model';
 import { MatDialogRef } from '@angular/material/dialog';
 import { ConfirmDialogService } from '../../../../shared/services/confirm-dialog.service';
 
@@ -35,7 +35,6 @@ import { ConfirmDialogService } from '../../../../shared/services/confirm-dialog
         MatProgressSpinnerModule,
         MatIconModule,
         MatSnackBarModule,
-        MatTooltipModule,
     ],
     templateUrl: './create-product.html',
     styleUrl: './create-product.scss'
@@ -44,6 +43,7 @@ export class CreateProduct implements OnInit {
 
     private fb = inject(FormBuilder);
     private productService = inject(ProductService);
+    private priceTypeService = inject(BusinessPriceTypeService);
     private snackBar = inject(MatSnackBar);
     private dialogRef = inject(MatDialogRef<CreateProduct>);
     private confirmDialog = inject(ConfirmDialogService);
@@ -52,7 +52,9 @@ export class CreateProduct implements OnInit {
     previewUrl = signal<string | null>(null);
     selectedFile: File | null = null;
     isLoading = false;
+    isLoadingTypes = signal(true);
     businessId!: string;
+    priceTypes = signal<BusinessPriceType[]>([]);
     firstTime = true;
 
     ngOnInit(): void {
@@ -63,9 +65,18 @@ export class CreateProduct implements OnInit {
             name:         ['', Validators.required],
             description:  [''],
             purchaseCost: [0, [Validators.required, Validators.min(0)]],
-            prices:       this.fb.array([this.newPriceGroup('Venta al detal')]),
+            prices:       this.fb.array([]),
             hasStock:     [false],
             initialStock: [{ value: 0, disabled: true }, Validators.min(0)],
+        });
+
+        this.priceTypeService.findAll(this.businessId).subscribe({
+            next: types => {
+                this.priceTypes.set(types);
+                types.forEach(t => this.pricesArray.push(this.priceGroupFor(t.name)));
+                this.isLoadingTypes.set(false);
+            },
+            error: () => this.isLoadingTypes.set(false),
         });
 
         this.dialogRef.backdropClick().subscribe(() => this.confirmClose());
@@ -82,21 +93,15 @@ export class CreateProduct implements OnInit {
         return this.pricesArray.at(i) as FormGroup;
     }
 
-    private newPriceGroup(name = ''): FormGroup {
+    priceTypeName(i: number): string {
+        return this.priceTypes()[i]?.name ?? '';
+    }
+
+    private priceGroupFor(name: string): FormGroup {
         return this.fb.group({
-            name:  [name, Validators.required],
+            name:  [name],
             value: [null, [Validators.required, Validators.min(0)]],
         });
-    }
-
-    addPrice(): void {
-        if (this.pricesArray.length >= 4) return;
-        this.pricesArray.push(this.newPriceGroup());
-    }
-
-    removePrice(index: number): void {
-        if (this.pricesArray.length <= 1) return;
-        this.pricesArray.removeAt(index);
     }
 
     confirmClose(): void {
@@ -141,13 +146,13 @@ export class CreateProduct implements OnInit {
     }
 
     createProduct(): void {
-        if (this.productForm.invalid) return;
+        if (this.productForm.invalid || this.priceTypes().length === 0) return;
 
         this.isLoading = true;
         const values = this.productForm.getRawValue();
 
         const prices = (values.prices as { name: string; value: number }[])
-            .map(p => ({ name: p.name, value: p.value }));
+            .map(p => ({ name: p.name, value: p.value ?? 0 }));
 
         const form = new FormData();
         form.append('name', values.name);

@@ -45,6 +45,63 @@
     color: gray;
 }
 
+// ── Selector de tipo de precio ────────────────────────────────────────────────
+
+.price-type-selector {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+}
+
+.selector-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #555;
+    flex-shrink: 0;
+}
+
+.price-type-chips {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.type-chip {
+    padding: 6px 16px;
+    border-radius: 20px;
+    border: 1px solid rgba(63, 0, 141, 0.3);
+    background: transparent;
+    color: #3f008d;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+
+    &:hover { background: rgba(63, 0, 141, 0.08); }
+    &.selected { background: #3f008d; color: #fff; border-color: #3f008d; }
+}
+
+.no-types-banner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    background: #fff3e0;
+    color: #e65100;
+    font-size: 13px;
+    flex-shrink: 0;
+
+    mat-icon { font-size: 18px; width: 18px; height: 18px; }
+}
+
+.product-price-type {
+    font-size: 12px;
+    color: gray;
+}
+
 // ── Toolbar ───────────────────────────────────────────────────────────────────
 
 .toolbar {

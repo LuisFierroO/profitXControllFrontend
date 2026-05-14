@@ -12,6 +12,99 @@
     overflow: hidden;
 }
 
+// ── Price types panel ────────────────────────────────────────────────────────
+.price-types-panel {
+    padding: 12px 20px 8px;
+    flex-shrink: 0;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+
+.price-types-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.price-types-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--mat-sys-on-surface-variant, #555);
+
+    mat-icon { font-size: 18px; width: 18px; height: 18px; }
+}
+
+.price-types-count {
+    font-size: 11px;
+    color: gray;
+    font-weight: 400;
+}
+
+.price-types-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.price-type-chip {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 4px 8px 4px 12px;
+    border-radius: 20px;
+    background: rgba(63, 0, 141, 0.08);
+    border: 1px solid rgba(63, 0, 141, 0.18);
+    font-size: 13px;
+    min-height: 36px;
+
+    &.add-chip {
+        background: rgba(0,0,0,0.04);
+        border-color: rgba(0,0,0,0.15);
+        padding-left: 8px;
+    }
+}
+
+.price-type-name {
+    color: #3f008d;
+    font-weight: 500;
+}
+
+.price-type-edit-input {
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 13px;
+    width: 180px;
+    color: inherit;
+    padding: 2px 4px;
+}
+
+.icon-btn-sm {
+    width: 28px !important;
+    height: 28px !important;
+    line-height: 28px !important;
+
+    mat-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+        line-height: 16px;
+    }
+}
+
+.delete-btn { color: #c62828; }
+
+.price-types-empty {
+    font-size: 12px;
+    color: gray;
+    font-style: italic;
+}
+
+// ── Toolbar ──────────────────────────────────────────────────────────────────
 .toolbar {
     display: flex;
     align-items: center;

@@ -10,6 +10,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ProductService } from '../../services/product.service';
+import { BusinessPriceTypeService } from '../../services/business-price-type.service';
+import { BusinessPriceType } from '../../models/business-price-type.model';
 import { Product } from '../../models/product.model';
 import { of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
@@ -41,6 +43,7 @@ export class EditProductDialog implements OnInit {
 
     private fb = inject(FormBuilder);
     private productService = inject(ProductService);
+    private priceTypeService = inject(BusinessPriceTypeService);
     private snackBar = inject(MatSnackBar);
     private dialogRef = inject(MatDialogRef<EditProductDialog>);
 
@@ -50,6 +53,8 @@ export class EditProductDialog implements OnInit {
     selectedFile: File | null = null;
     previewUrl = signal<string | null>(null);
     isLoading = false;
+    isLoadingTypes = signal(true);
+    priceTypes = signal<BusinessPriceType[]>([]);
 
     readonly placeholder = 'data:image/svg+xml;base64,' + btoa(
         '<svg xmlns="http://www.w3.org/2000/svg" width="220" height="165">' +
@@ -62,22 +67,46 @@ export class EditProductDialog implements OnInit {
         const p = this.data.product;
         this.previewUrl.set(p.imgUrl);
 
-        const priceGroups = (p.prices ?? []).map(pe =>
-            this.fb.group({
-                name:  [pe.name, Validators.required],
-                value: [pe.value, [Validators.required, Validators.min(0)]],
-            })
-        );
-        if (priceGroups.length === 0) {
-            priceGroups.push(this.newPriceGroup('Venta al detal'));
-        }
-
         this.productForm = this.fb.group({
             name:            [p.name, Validators.required],
             description:     [p.description ?? ''],
             purchaseCost:    [p.purchaseCost ?? 0, [Validators.required, Validators.min(0)]],
-            prices:          this.fb.array(priceGroups),
+            prices:          this.fb.array([]),
             stockAdjustment: [null],
+        });
+
+        this.priceTypeService.findAll(this.data.businessId).subscribe({
+            next: types => {
+                this.priceTypes.set(types);
+                const pricesArray = this.productForm.get('prices') as FormArray;
+
+                if (types.length > 0) {
+                    // Build one entry per business price type, pre-filling from existing product prices
+                    types.forEach(t => {
+                        const existing = p.prices.find(pe => pe.name === t.name);
+                        pricesArray.push(this.fb.group({
+                            name:  [t.name],
+                            value: [existing?.value ?? null, [Validators.required, Validators.min(0)]],
+                        }));
+                    });
+                } else {
+                    // Fallback: keep existing prices if no types defined
+                    (p.prices ?? []).forEach(pe => {
+                        pricesArray.push(this.fb.group({
+                            name:  [pe.name, Validators.required],
+                            value: [pe.value, [Validators.required, Validators.min(0)]],
+                        }));
+                    });
+                    if (pricesArray.length === 0) {
+                        pricesArray.push(this.fb.group({
+                            name:  ['Venta al detal', Validators.required],
+                            value: [null, [Validators.required, Validators.min(0)]],
+                        }));
+                    }
+                }
+                this.isLoadingTypes.set(false);
+            },
+            error: () => this.isLoadingTypes.set(false),
         });
     }
 
@@ -89,21 +118,8 @@ export class EditProductDialog implements OnInit {
         return this.pricesArray.at(i) as FormGroup;
     }
 
-    private newPriceGroup(name = ''): FormGroup {
-        return this.fb.group({
-            name:  [name, Validators.required],
-            value: [null, [Validators.required, Validators.min(0)]],
-        });
-    }
-
-    addPrice(): void {
-        if (this.pricesArray.length >= 4) return;
-        this.pricesArray.push(this.newPriceGroup());
-    }
-
-    removePrice(index: number): void {
-        if (this.pricesArray.length <= 1) return;
-        this.pricesArray.removeAt(index);
+    priceTypeName(i: number): string {
+        return this.priceTypes()[i]?.name ?? this.priceGroup(i).get('name')?.value ?? '';
     }
 
     onImgError(event: Event): void {
@@ -146,7 +162,7 @@ export class EditProductDialog implements OnInit {
             description:  values.description,
             purchaseCost: values.purchaseCost,
             prices:       (values.prices as { name: string; value: number }[])
-                              .map(p => ({ name: p.name, value: p.value })),
+                              .map(p => ({ name: p.name, value: p.value ?? 0 })),
         };
         if (values.stockAdjustment) {
             updateData.stockAdjustment = values.stockAdjustment;

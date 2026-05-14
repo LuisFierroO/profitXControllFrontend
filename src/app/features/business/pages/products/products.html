@@ -1,5 +1,74 @@
 <div class="products-container">
 
+    <!-- Tipos de lista de precios -->
+    <div class="price-types-panel">
+        <div class="price-types-header">
+            <div class="price-types-title">
+                <mat-icon>sell</mat-icon>
+                <span>Tipos de lista de precios</span>
+                <span class="price-types-count">{{ priceTypes().length }}/4</span>
+            </div>
+            @if (context.role() !== 'EMPLOYEE' && priceTypes().length < 4 && !isAddingType()) {
+                <button mat-icon-button matTooltip="Agregar tipo de precio" (click)="isAddingType.set(true)">
+                    <mat-icon>add_circle_outline</mat-icon>
+                </button>
+            }
+        </div>
+
+        <div class="price-types-list">
+            @for (type of priceTypes(); track type.id) {
+                <div class="price-type-chip">
+                    @if (editingTypeId() === type.id) {
+                        <input class="price-type-edit-input"
+                            [(ngModel)]="editingTypeName"
+                            (keydown.enter)="saveEditType(type)"
+                            (keydown.escape)="cancelEditType()"
+                            autofocus>
+                        <button mat-icon-button class="icon-btn-sm" (click)="saveEditType(type)" matTooltip="Guardar">
+                            <mat-icon>check</mat-icon>
+                        </button>
+                        <button mat-icon-button class="icon-btn-sm" (click)="cancelEditType()" matTooltip="Cancelar">
+                            <mat-icon>close</mat-icon>
+                        </button>
+                    } @else {
+                        <span class="price-type-name">{{ type.name }}</span>
+                        @if (context.role() !== 'EMPLOYEE') {
+                            <button mat-icon-button class="icon-btn-sm" (click)="startEditType(type)" matTooltip="Renombrar">
+                                <mat-icon>edit</mat-icon>
+                            </button>
+                            <button mat-icon-button class="icon-btn-sm delete-btn" (click)="deletePriceType(type)" matTooltip="Eliminar">
+                                <mat-icon>delete_outline</mat-icon>
+                            </button>
+                        }
+                    }
+                </div>
+            }
+
+            @if (isAddingType()) {
+                <div class="price-type-chip add-chip">
+                    <input class="price-type-edit-input"
+                        [(ngModel)]="newTypeName"
+                        placeholder="Nombre (ej. Venta al por mayor)"
+                        (keydown.enter)="addPriceType()"
+                        (keydown.escape)="isAddingType.set(false)"
+                        autofocus>
+                    <button mat-icon-button class="icon-btn-sm" (click)="addPriceType()" matTooltip="Guardar">
+                        <mat-icon>check</mat-icon>
+                    </button>
+                    <button mat-icon-button class="icon-btn-sm" (click)="isAddingType.set(false)" matTooltip="Cancelar">
+                        <mat-icon>close</mat-icon>
+                    </button>
+                </div>
+            }
+
+            @if (priceTypes().length === 0 && !isAddingType()) {
+                <span class="price-types-empty">
+                    Sin tipos definidos. Agrega al menos uno para crear productos con precios consistentes.
+                </span>
+            }
+        </div>
+    </div>
+
     <div class="toolbar">
         <mat-form-field class="search-form text-field">
             <mat-label>Buscar producto</mat-label>

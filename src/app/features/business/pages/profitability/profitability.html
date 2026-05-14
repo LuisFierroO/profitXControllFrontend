@@ -6,9 +6,30 @@
             <h1>Rentabilidad de productos</h1>
         </div>
         <p class="header-subtitle">
-            Ingresa el costo unitario de cada producto para ver su margen de ganancia.
+            Selecciona el tipo de precio para ver el margen de ganancia de cada producto.
         </p>
     </div>
+
+    <!-- Selector de tipo de precio -->
+    @if (priceTypes().length > 0) {
+    <div class="price-type-selector">
+        <span class="selector-label">Lista de precios:</span>
+        <div class="price-type-chips">
+            @for (type of priceTypes(); track type.id) {
+                <button class="type-chip"
+                    [class.selected]="selectedPriceType() === type.name"
+                    (click)="selectPriceType(type.name)">
+                    {{ type.name }}
+                </button>
+            }
+        </div>
+    </div>
+    } @else if (!isLoadingProducts()) {
+    <div class="no-types-banner">
+        <mat-icon>info</mat-icon>
+        <span>No hay tipos de lista de precios definidos. Ve a Productos y agrega al menos uno.</span>
+    </div>
+    }
 
     <div class="toolbar">
         <mat-form-field class="search-field text-field">
@@ -18,8 +39,8 @@
         </mat-form-field>
 
         @if (activeCount() > 0) {
-        <button mat-stroked-button (click)="clearCosts()">
-            <mat-icon>clear_all</mat-icon> Limpiar costos
+        <button mat-stroked-button (click)="resetCosts()">
+            <mat-icon>refresh</mat-icon> Restablecer costos
         </button>
         }
     </div>
@@ -41,7 +62,7 @@
             <div class="section-label">
                 Productos
                 @if (activeCount() > 0) {
-                <span class="active-badge">{{ activeCount() }} con costo</span>
+                <span class="active-badge">{{ activeCount() }} activos</span>
                 }
             </div>
             <div class="products-list">
@@ -54,10 +75,12 @@
                             alt="{{ row.product.name }}">
                         <div class="product-info">
                             <span class="product-name">{{ row.product.name }}</span>
-                            <span class="product-price">
-                                Precio: {{ (row.product.prices[0]?.value ?? 0) | currency:'COP':'symbol':'1.0-0' }}
-                                @if (row.product.prices.length > 1) {
-                                    <span class="extra-prices"> +{{ row.product.prices.length - 1 }} más</span>
+                            <span class="product-price-type">
+                                @if (selectedPriceType()) {
+                                    {{ selectedPriceType() }}:
+                                    {{ priceForSelected(row.product) | currency:'COP':'symbol':'1.0-0' }}
+                                } @else {
+                                    Sin tipo seleccionado
                                 }
                             </span>
                         </div>
@@ -80,15 +103,15 @@
 
         <div class="results-section">
             <div class="section-label">Resultados</div>
-            @if (activeCount() === 0) {
+            @if (!selectedPriceType()) {
             <div class="no-results">
                 <mat-icon>info</mat-icon>
-                <p>Ingresa el costo de al menos un producto para ver el análisis.</p>
+                <p>Selecciona un tipo de lista de precios para ver el análisis.</p>
             </div>
             } @else {
             <app-profitability-panel
                 [results]="profitabilityResults()"
-                [isLoading]="isProfitabilityLoading()">
+                [isLoading]="false">
             </app-profitability-panel>
             }
         </div>

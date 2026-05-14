@@ -9,8 +9,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Subject, debounceTime } from 'rxjs';
 import { ProductService } from '../../services/product.service';
-import { ExpenseService } from '../../services/expense.service';
+import { BusinessPriceTypeService } from '../../services/business-price-type.service';
 import { Product } from '../../models/product.model';
+import { BusinessPriceType } from '../../models/business-price-type.model';
 import { ProfitabilityResult } from '../../models/expense.model';
 import { ProfitabilityPanel } from '../../components/profitability-panel/profitability-panel';
 
@@ -39,18 +40,22 @@ interface ProductCostRow {
 export class Profitability implements OnInit {
 
     private productService = inject(ProductService);
-    private expenseService = inject(ExpenseService);
+    private priceTypeService = inject(BusinessPriceTypeService);
 
     businessId!: string;
 
     rows = signal<ProductCostRow[]>([]);
     isLoadingProducts = signal(true);
-    profitabilityResults = signal<ProfitabilityResult[]>([]);
-    isProfitabilityLoading = signal(false);
+    priceTypes = signal<BusinessPriceType[]>([]);
+    selectedPriceType = signal<string>('');
 
     searchControl = new FormControl('');
 
-    private readonly recalcSubject$ = new Subject<void>();
+    readonly placeholder = 'data:image/svg+xml;base64,' + btoa(
+        '<svg xmlns="http://www.w3.org/2000/svg" width="44" height="44">' +
+        '<rect width="44" height="44" fill="#e0e0e0"/>' +
+        '</svg>'
+    );
 
     filteredRows = computed(() => {
         const term = this.searchControl.value?.toLowerCase().trim() ?? '';
@@ -58,14 +63,36 @@ export class Profitability implements OnInit {
             !term || r.product.name.toLowerCase().includes(term));
     });
 
-    activeCount = computed(() =>
-        this.rows().filter(r => r.unitCost > 0).length);
+    profitabilityResults = computed<ProfitabilityResult[]>(() => {
+        const typeName = this.selectedPriceType();
+        if (!typeName) return [];
+        return this.filteredRows().map(r => {
+            const priceEntry = r.product.prices.find(p => p.name === typeName);
+            const salePrice = priceEntry?.value ?? 0;
+            const cost = r.unitCost;
+            const grossProfit = salePrice - cost;
+            const margin = salePrice > 0 ? (grossProfit / salePrice) * 100 : -100;
+            const markup = cost > 0 ? (grossProfit / cost) * 100 : 0;
+            const profitable = grossProfit > 0;
+            let verdict: string;
+            if      (margin >= 30) verdict = 'BUENO';
+            else if (margin >= 10) verdict = 'BAJO';
+            else                   verdict = 'NO_RENTABLE';
+            return {
+                productId: r.product.id,
+                productName: r.product.name,
+                salePrice,
+                unitCost: cost,
+                grossProfitPerUnit: grossProfit,
+                marginPercent: margin,
+                markupPercent: markup,
+                profitable,
+                verdict,
+            };
+        });
+    });
 
-    readonly placeholder = 'data:image/svg+xml;base64,' + btoa(
-        '<svg xmlns="http://www.w3.org/2000/svg" width="44" height="44">' +
-        '<rect width="44" height="44" fill="#e0e0e0"/>' +
-        '</svg>'
-    );
+    activeCount = computed(() => this.filteredRows().filter(r => r.unitCost > 0).length);
 
     ngOnInit(): void {
         const id = localStorage.getItem('currentBusinessId');
@@ -74,13 +101,22 @@ export class Profitability implements OnInit {
 
         this.productService.findByBusiness(this.businessId).subscribe({
             next: products => {
-                this.rows.set(products.map(p => ({ product: p, unitCost: 0 })));
+                this.rows.set(products.map(p => ({ product: p, unitCost: p.purchaseCost ?? 0 })));
                 this.isLoadingProducts.set(false);
             },
             error: () => this.isLoadingProducts.set(false),
         });
 
-        this.recalcSubject$.pipe(debounceTime(600)).subscribe(() => this.recalculate());
+        this.priceTypeService.findAll(this.businessId).subscribe({
+            next: types => {
+                this.priceTypes.set(types);
+                if (types.length > 0) this.selectedPriceType.set(types[0].name);
+            },
+        });
+    }
+
+    selectPriceType(name: string): void {
+        this.selectedPriceType.set(name);
     }
 
     updateCost(productId: string, value: number): void {
@@ -91,32 +127,15 @@ export class Profitability implements OnInit {
                     : r
             )
         );
-        this.recalcSubject$.next();
     }
 
-    clearCosts(): void {
-        this.rows.update(list => list.map(r => ({ ...r, unitCost: 0 })));
-        this.profitabilityResults.set([]);
+    resetCosts(): void {
+        this.rows.update(list => list.map(r => ({ ...r, unitCost: r.product.purchaseCost ?? 0 })));
     }
 
-    private recalculate(): void {
-        const items = this.rows()
-            .filter(r => r.unitCost > 0)
-            .map(r => ({ productId: r.product.id, unitCost: r.unitCost }));
-
-        if (items.length === 0) {
-            this.profitabilityResults.set([]);
-            return;
-        }
-
-        this.isProfitabilityLoading.set(true);
-        this.expenseService.checkProfitability(this.businessId, items).subscribe({
-            next: results => {
-                this.profitabilityResults.set(results);
-                this.isProfitabilityLoading.set(false);
-            },
-            error: () => this.isProfitabilityLoading.set(false),
-        });
+    priceForSelected(product: Product): number {
+        const name = this.selectedPriceType();
+        return product.prices.find(p => p.name === name)?.value ?? 0;
     }
 
     onImgError(event: Event): void {
