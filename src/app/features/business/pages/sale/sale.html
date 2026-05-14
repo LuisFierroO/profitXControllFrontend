@@ -28,7 +28,7 @@
                             <p class="product-price">
                                 {{ getDefaultPrice(product).value | currency:'COP ':'symbol':'1.0-0' }}
                             </p>
-                            @if (product.prices?.length > 1) {
+                            @if (product.prices.length > 1) {
                                 <p class="product-price-count">{{ product.prices.length }} precios</p>
                             }
                             @if (product.hasStock) {
@@ -86,7 +86,7 @@
                             </div>
 
                             <!-- Selector de lista de precios -->
-                            @if (item.product.prices?.length > 1) {
+                            @if (item.product.prices.length > 1) {
                                 <div class="price-type-row">
                                     @for (price of item.product.prices; track price.name) {
                                         <button class="price-chip"
@@ -96,7 +96,7 @@
                                         </button>
                                     }
                                 </div>
-                            } @else if (item.product.prices?.length === 1) {
+                            } @else if (item.product.prices.length === 1) {
                                 <div class="price-type-single">
                                     {{ item.product.prices[0].name }}
                                 </div>

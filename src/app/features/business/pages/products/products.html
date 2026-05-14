@@ -33,9 +33,9 @@
                     <h3>{{ product.name }}</h3>
                     <p>{{ product.description }}</p>
                     <span class="product-price">
-                        {{ (product.prices?.[0]?.value ?? 0) | currency:'COP ':'symbol':'1.0-0' }}
+                        {{ (product.prices[0]?.value ?? 0) | currency:'COP ':'symbol':'1.0-0' }}
                     </span>
-                    @if (product.prices?.length > 1) {
+                    @if (product.prices.length > 1) {
                         <span class="product-price-extra">+{{ product.prices.length - 1 }} lista(s)</span>
                     }
                     @if (product.hasStock) {
