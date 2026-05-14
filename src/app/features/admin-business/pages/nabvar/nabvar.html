@@ -12,10 +12,10 @@
             <img src="logoNoLettersBBg.png" alt="logo" class="logo-img">
         </div>
         <mat-label class="user-name">{{nameUser()}}</mat-label>
-        <button matButton="elevated" class="button-navBar" (click)="listBusiness()">Mis negocios</button>
-        <button matButton="elevated" class="button-navBar" (click)="createBusiness()">Crear negocio</button>
+        <button matButton class="button-navBar" (click)="listBusiness()">Mis negocios</button>
+        <button matButton class="button-navBar" (click)="createBusiness()">Crear negocio</button>
         <div class="button-logout">
-            <button matButton="filled" (click)="exit()">Cerrar sesion</button>
+            <button matButton="elevated" (click)="exit()">Cerrar sesion</button>
         </div>
     </mat-card-content>
 </mat-card>

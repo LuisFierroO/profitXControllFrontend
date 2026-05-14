@@ -68,25 +68,3 @@
     overflow: hidden;
 }
 
-.name-fields {
-    width: 80%;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-
-    .text-field {
-        width: 100%;
-    }
-}
-
-.name-field {
-    min-width: 0;
-}
-
-
-@media (max-width: 400px) {
-    .name-fields {
-        grid-template-columns: 1fr;
-        gap: 0;
-    }
-}
