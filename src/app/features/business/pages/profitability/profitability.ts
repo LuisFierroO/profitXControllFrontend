@@ -74,10 +74,8 @@ export class Profitability implements OnInit {
             const margin = salePrice > 0 ? (grossProfit / salePrice) * 100 : -100;
             const markup = cost > 0 ? (grossProfit / cost) * 100 : 0;
             const profitable = grossProfit > 0;
-            let verdict: string;
-            if      (margin >= 30) verdict = 'BUENO';
-            else if (margin >= 10) verdict = 'BAJO';
-            else                   verdict = 'NO_RENTABLE';
+            const verdict: 'BUENO' | 'BAJO' | 'NO_RENTABLE' =
+                margin >= 30 ? 'BUENO' : margin >= 10 ? 'BAJO' : 'NO_RENTABLE';
             return {
                 productId: r.product.id,
                 productName: r.product.name,
