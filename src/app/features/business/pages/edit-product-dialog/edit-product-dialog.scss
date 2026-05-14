@@ -31,3 +31,50 @@
 .full-width {
     width: 100%;
 }
+
+.price-list-section {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 4px;
+}
+
+.price-list-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.price-list-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.6);
+}
+
+.price-list-hint {
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.45);
+    margin: 0;
+}
+
+.prices-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.price-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+
+    .price-name-field  { flex: 1; }
+    .price-value-field { width: 130px; flex-shrink: 0; }
+}
+
+.remove-price-btn {
+    color: #aaa;
+    margin-top: 4px;
+    flex-shrink: 0;
+    &:hover:not([disabled]) { color: red; }
+}

@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -8,9 +8,10 @@ import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ProductService } from '../../services/product.service';
 import { Product } from '../../models/product.model';
-import { forkJoin, of } from 'rxjs';
+import { of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 
 interface DialogData {
@@ -31,6 +32,7 @@ interface DialogData {
         MatIconModule,
         MatProgressSpinnerModule,
         MatSnackBarModule,
+        MatTooltipModule,
     ],
     templateUrl: './edit-product-dialog.html',
     styleUrl: './edit-product-dialog.scss',
@@ -58,16 +60,50 @@ export class EditProductDialog implements OnInit {
 
     ngOnInit(): void {
         const p = this.data.product;
-
-        // Pre-cargar la imagen actual como preview
         this.previewUrl.set(p.imgUrl);
+
+        const priceGroups = (p.prices ?? []).map(pe =>
+            this.fb.group({
+                name:  [pe.name, Validators.required],
+                value: [pe.value, [Validators.required, Validators.min(0)]],
+            })
+        );
+        if (priceGroups.length === 0) {
+            priceGroups.push(this.newPriceGroup('Venta al detal'));
+        }
 
         this.productForm = this.fb.group({
             name:            [p.name, Validators.required],
             description:     [p.description ?? ''],
-            price:           [p.price, [Validators.required, Validators.min(0.01)]],
+            purchaseCost:    [p.purchaseCost ?? 0, [Validators.required, Validators.min(0)]],
+            prices:          this.fb.array(priceGroups),
             stockAdjustment: [null],
         });
+    }
+
+    get pricesArray(): FormArray {
+        return this.productForm.get('prices') as FormArray;
+    }
+
+    priceGroup(i: number): FormGroup {
+        return this.pricesArray.at(i) as FormGroup;
+    }
+
+    private newPriceGroup(name = ''): FormGroup {
+        return this.fb.group({
+            name:  [name, Validators.required],
+            value: [null, [Validators.required, Validators.min(0)]],
+        });
+    }
+
+    addPrice(): void {
+        if (this.pricesArray.length >= 4) return;
+        this.pricesArray.push(this.newPriceGroup());
+    }
+
+    removePrice(index: number): void {
+        if (this.pricesArray.length <= 1) return;
+        this.pricesArray.removeAt(index);
     }
 
     onImgError(event: Event): void {
@@ -105,17 +141,17 @@ export class EditProductDialog implements OnInit {
         const values = this.productForm.value;
         const { businessId, product } = this.data;
 
-        // Paso 1: actualizar datos del producto (PATCH — JSON normal)
         const updateData: any = {
-            name:        values.name,
-            description: values.description,
-            price:       values.price,
+            name:         values.name,
+            description:  values.description,
+            purchaseCost: values.purchaseCost,
+            prices:       (values.prices as { name: string; value: number }[])
+                              .map(p => ({ name: p.name, value: p.value })),
         };
         if (values.stockAdjustment) {
             updateData.stockAdjustment = values.stockAdjustment;
         }
 
-        // Paso 2: si hay imagen nueva, subirla por separado (PUT multipart)
         this.productService.update(businessId, product.id, updateData).pipe(
             switchMap(() => {
                 if (!this.selectedFile) return of(null);

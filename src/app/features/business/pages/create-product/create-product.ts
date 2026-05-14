@@ -1,7 +1,13 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
+import {
+    ReactiveFormsModule,
+    FormBuilder,
+    FormGroup,
+    FormArray,
+    Validators,
+    AbstractControl,
+} from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -10,6 +16,7 @@ import { MatSlideToggleModule, MatSlideToggleChange } from '@angular/material/sl
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ProductService } from '../../services/product.service';
 import { MatDialogRef } from '@angular/material/dialog';
 import { ConfirmDialogService } from '../../../../shared/services/confirm-dialog.service';
@@ -28,6 +35,7 @@ import { ConfirmDialogService } from '../../../../shared/services/confirm-dialog
         MatProgressSpinnerModule,
         MatIconModule,
         MatSnackBarModule,
+        MatTooltipModule,
     ],
     templateUrl: './create-product.html',
     styleUrl: './create-product.scss'
@@ -48,43 +56,61 @@ export class CreateProduct implements OnInit {
     firstTime = true;
 
     ngOnInit(): void {
-        // El businessId viene del route padre /businesses/:businessId/products/create
         const businessId = localStorage.getItem('currentBusinessId');
-        if (businessId) {
-            this.businessId = businessId;
-        }
+        if (businessId) this.businessId = businessId;
 
         this.productForm = this.fb.group({
             name:         ['', Validators.required],
             description:  [''],
-            price:        [null, [Validators.required, Validators.min(0.01)]],
+            purchaseCost: [0, [Validators.required, Validators.min(0)]],
+            prices:       this.fb.array([this.newPriceGroup('Venta al detal')]),
             hasStock:     [false],
             initialStock: [{ value: 0, disabled: true }, Validators.min(0)],
         });
-        this.dialogRef.backdropClick().subscribe(() => {
-            this.confirmClose();
-        });
+
+        this.dialogRef.backdropClick().subscribe(() => this.confirmClose());
         this.dialogRef.keydownEvents().subscribe(event => {
-            if (event.key === 'Escape') {
-                this.confirmClose();
-            }
+            if (event.key === 'Escape') this.confirmClose();
         });
+    }
+
+    get pricesArray(): FormArray {
+        return this.productForm.get('prices') as FormArray;
+    }
+
+    priceGroup(i: number): FormGroup {
+        return this.pricesArray.at(i) as FormGroup;
+    }
+
+    private newPriceGroup(name = ''): FormGroup {
+        return this.fb.group({
+            name:  [name, Validators.required],
+            value: [null, [Validators.required, Validators.min(0)]],
+        });
+    }
+
+    addPrice(): void {
+        if (this.pricesArray.length >= 4) return;
+        this.pricesArray.push(this.newPriceGroup());
+    }
+
+    removePrice(index: number): void {
+        if (this.pricesArray.length <= 1) return;
+        this.pricesArray.removeAt(index);
     }
 
     confirmClose(): void {
         this.confirmDialog.confirm('¿Seguro que quieres cancelar? Los cambios no se guardarán.')
-            .subscribe(confirmed => {
-                if (confirmed) this.dialogRef.close(false);
-            });
+            .subscribe(confirmed => { if (confirmed) this.dialogRef.close(false); });
     }
 
     onStockToggle(event: MatSlideToggleChange): void {
-        const initialStockControl = this.productForm.get('initialStock');
+        const ctrl = this.productForm.get('initialStock');
         if (event.checked) {
-            initialStockControl?.enable();
+            ctrl?.enable();
         } else {
-            initialStockControl?.disable();
-            initialStockControl?.setValue(0);
+            ctrl?.disable();
+            ctrl?.setValue(0);
         }
     }
 
@@ -93,8 +119,6 @@ export class CreateProduct implements OnInit {
         if (!input.files?.length) return;
 
         const file = input.files[0];
-
-        // Validación en el frontend antes de mandar al backend
         const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
         if (!allowedTypes.includes(file.type)) {
             this.snackBar.open('Solo se aceptan imágenes JPG, PNG o WebP', 'Cerrar', { duration: 3000 });
@@ -106,8 +130,6 @@ export class CreateProduct implements OnInit {
         }
 
         this.selectedFile = file;
-
-        // Generar vista previa local sin subir al servidor aún
         const reader = new FileReader();
         reader.onload = () => this.previewUrl.set(reader.result as string);
         reader.readAsDataURL(file);
@@ -122,12 +144,16 @@ export class CreateProduct implements OnInit {
         if (this.productForm.invalid) return;
 
         this.isLoading = true;
-        const values = this.productForm.getRawValue(); // getRawValue incluye campos disabled
+        const values = this.productForm.getRawValue();
+
+        const prices = (values.prices as { name: string; value: number }[])
+            .map(p => ({ name: p.name, value: p.value }));
 
         const form = new FormData();
         form.append('name', values.name);
         form.append('description', values.description || ' ');
-        form.append('price', String(values.price));
+        form.append('purchaseCost', String(values.purchaseCost ?? 0));
+        form.append('prices', JSON.stringify(prices));
         form.append('hasStock', String(values.hasStock));
         form.append('initialStock', String(values.initialStock ?? 0));
 
@@ -138,8 +164,7 @@ export class CreateProduct implements OnInit {
         this.productService.create(this.businessId, form).subscribe({
             next: () => {
                 this.snackBar.open('Producto creado correctamente', 'Cerrar', { duration: 3000 });
-
-                this.dialogRef.close(true); // 👈 esto es clave
+                this.dialogRef.close(true);
             },
             error: (err) => {
                 const msg = err.error?.error ?? 'Error al crear el producto';
@@ -152,11 +177,11 @@ export class CreateProduct implements OnInit {
     cancel(): void {
         this.confirmClose();
     }
+
     resetQuantity(): void {
-        if(this.firstTime) {
+        if (this.firstTime) {
             this.productForm.get('initialStock')?.setValue('');
             this.firstTime = false;
         }
-        
     }
 }

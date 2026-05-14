@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Summary, TimeSeriesPoint, TopProduct, ExpenseBreakdown, StockAlert } from '../models/metrics.model';
+import { Summary, TimeSeriesPoint, TopProduct, ExpenseBreakdown, StockAlert, PriceTypeProfit } from '../models/metrics.model';
 import { environment } from '../../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -47,5 +47,13 @@ export class MetricsService {
     getStockAlerts(businessId: string): Observable<StockAlert[]> {
         return this.http.get<StockAlert[]>(
             `${this.API}/businesses/${businessId}/metrics/stock-alerts`);
+    }
+
+    getProfitByPriceType(businessId: string, from?: Date, to?: Date): Observable<PriceTypeProfit[]> {
+        let params = new HttpParams();
+        if (from) params = params.set('from', from.toISOString());
+        if (to)   params = params.set('to', to.toISOString());
+        return this.http.get<PriceTypeProfit[]>(
+            `${this.API}/businesses/${businessId}/metrics/profit-by-price-type`, { params });
     }
 }

@@ -55,7 +55,10 @@
                         <div class="product-info">
                             <span class="product-name">{{ row.product.name }}</span>
                             <span class="product-price">
-                                Precio venta: {{ row.product.price | currency:'COP':'symbol':'1.0-0' }}
+                                Precio: {{ (row.product.prices?.[0]?.value ?? 0) | currency:'COP':'symbol':'1.0-0' }}
+                                @if (row.product.prices?.length > 1) {
+                                    <span class="extra-prices"> +{{ row.product.prices.length - 1 }} más</span>
+                                }
                             </span>
                         </div>
                         <mat-form-field class="cost-field text-field">

@@ -18,7 +18,7 @@
                 (change)="onFileSelected($event)">
         </div>
 
-        <mat-form-field  class="full-width text-field">
+        <mat-form-field class="full-width text-field">
             <mat-label>Nombre</mat-label>
             <input matInput formControlName="name">
             @if (productForm.get('name')?.hasError('required') && productForm.get('name')?.touched) {
@@ -32,13 +32,55 @@
         </mat-form-field>
 
         <mat-form-field class="full-width text-field">
-            <mat-label>Precio de venta</mat-label>
+            <mat-label>Costo de compra</mat-label>
             <span matTextPrefix>$&nbsp;</span>
-            <input matInput type="number" min="0" formControlName="price">
-            @if (productForm.get('price')?.hasError('min')) {
-                <mat-error>El precio debe ser mayor a 0</mat-error>
-            }
+            <input matInput type="number" min="0" formControlName="purchaseCost">
+            <mat-hint>Precio al que compras o produces el producto</mat-hint>
         </mat-form-field>
+
+        <!-- Lista de precios -->
+        <div class="price-list-section">
+            <div class="price-list-header">
+                <span class="price-list-title">Lista de precios</span>
+                <button mat-icon-button type="button"
+                    [disabled]="pricesArray.length >= 4"
+                    [matTooltip]="pricesArray.length >= 4 ? 'Máximo 4 precios distintos' : 'Agregar precio'"
+                    (click)="addPrice()">
+                    <mat-icon>add_circle_outline</mat-icon>
+                </button>
+            </div>
+            <p class="price-list-hint">El primer precio es el predeterminado en ventas</p>
+
+            <div formArrayName="prices" class="prices-list">
+                @for (ctrl of pricesArray.controls; track $index; let i = $index) {
+                    <div class="price-row" [formGroupName]="i">
+                        <mat-form-field class="price-name-field text-field">
+                            <mat-label>{{ i === 0 ? 'Nombre (predeterminado)' : 'Nombre' }}</mat-label>
+                            <input matInput formControlName="name">
+                            @if (priceGroup(i).get('name')?.hasError('required') && priceGroup(i).get('name')?.touched) {
+                                <mat-error>Nombre requerido</mat-error>
+                            }
+                        </mat-form-field>
+
+                        <mat-form-field class="price-value-field text-field">
+                            <mat-label>Precio</mat-label>
+                            <span matTextPrefix>$&nbsp;</span>
+                            <input matInput type="number" min="0" formControlName="value">
+                            @if (priceGroup(i).get('value')?.hasError('required') && priceGroup(i).get('value')?.touched) {
+                                <mat-error>Requerido</mat-error>
+                            }
+                        </mat-form-field>
+
+                        <button mat-icon-button type="button" class="remove-price-btn"
+                            [disabled]="pricesArray.length <= 1"
+                            matTooltip="Eliminar precio"
+                            (click)="removePrice(i)">
+                            <mat-icon>remove_circle_outline</mat-icon>
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
 
         @if (data.product.hasStock) {
             <mat-form-field class="full-width text-field">

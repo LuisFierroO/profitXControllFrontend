@@ -26,8 +26,11 @@
                         <div class="product-info">
                             <h3>{{ product.name }}</h3>
                             <p class="product-price">
-                                {{ product.price | currency:'COP ':'symbol':'1.0-0' }}
+                                {{ getDefaultPrice(product).value | currency:'COP ':'symbol':'1.0-0' }}
                             </p>
+                            @if (product.prices?.length > 1) {
+                                <p class="product-price-count">{{ product.prices.length }} precios</p>
+                            }
                             @if (product.hasStock) {
                                 <p class="product-stock"
                                     [class.low-stock]="product.stock <= 5 && product.stock > 0"
@@ -78,9 +81,27 @@
                             <div class="cart-item-info">
                                 <span class="cart-item-name">{{ item.product.name }}</span>
                                 <span class="cart-item-unit-price">
-                                    {{ item.product.price | currency:'COP ':'symbol':'1.0-0' }} c/u
+                                    {{ item.selectedPriceEntry.value | currency:'COP ':'symbol':'1.0-0' }} c/u
                                 </span>
                             </div>
+
+                            <!-- Selector de lista de precios -->
+                            @if (item.product.prices?.length > 1) {
+                                <div class="price-type-row">
+                                    @for (price of item.product.prices; track price.name) {
+                                        <button class="price-chip"
+                                            [class.selected]="item.selectedPriceEntry.name === price.name"
+                                            (click)="setPriceType(item.product.id, price)">
+                                            {{ price.name }}
+                                        </button>
+                                    }
+                                </div>
+                            } @else if (item.product.prices?.length === 1) {
+                                <div class="price-type-single">
+                                    {{ item.product.prices[0].name }}
+                                </div>
+                            }
+
                             <div class="cart-item-controls">
                                 <button mat-icon-button (click)="decreaseQuantity(item.product.id)">
                                     <mat-icon>remove</mat-icon>
@@ -98,7 +119,7 @@
                                     <mat-icon>add</mat-icon>
                                 </button>
                                 <span class="cart-item-subtotal">
-                                    {{ item.product.price * item.quantity | currency:'COP ':'symbol':'1.0-0' }}
+                                    {{ item.selectedPriceEntry.value * item.quantity | currency:'COP ':'symbol':'1.0-0' }}
                                 </span>
                                 <button mat-icon-button class="remove-btn"
                                     (click)="removeFromCart(item.product.id)">

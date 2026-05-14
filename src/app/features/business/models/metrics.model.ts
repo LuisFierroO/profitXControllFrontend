@@ -37,3 +37,12 @@ export interface StockAlert {
     level: AlertLevel;
     daysWithoutMovement: number | null;
 }
+
+export interface PriceTypeProfit {
+    priceTypeName: string;
+    totalRevenue: number;
+    totalCost: number;
+    grossProfit: number;
+    marginPercent: number;
+    itemCount: number;
+}

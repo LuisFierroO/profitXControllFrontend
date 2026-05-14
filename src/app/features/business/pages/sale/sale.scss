@@ -200,6 +200,47 @@
     align-items: baseline;
 }
 
+.price-type-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 2px;
+}
+
+.price-chip {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    border: 1px solid #d0d0d0;
+    background: transparent;
+    cursor: pointer;
+    color: #555;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+    line-height: 1.6;
+
+    &:hover { border-color: #3f008d; color: #3f008d; }
+
+    &.selected {
+        background: #3f008d;
+        border-color: #3f008d;
+        color: #fff;
+    }
+}
+
+.price-type-single {
+    font-size: 11px;
+    color: rgba(0, 0, 0, 0.45);
+    margin-bottom: 2px;
+}
+
+.product-price-count {
+    font-size: 11px;
+    color: #3f008d;
+    margin: 0;
+    opacity: 0.7;
+}
+
 .cart-item-name     { font-size: 14px; font-weight: 500; flex: 1; }
 .cart-item-unit-price { font-size: 12px; color: gray; }
 

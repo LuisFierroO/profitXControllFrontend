@@ -54,11 +54,12 @@ export class Products implements OnInit {
     protected context = inject(BusinessContextService);
 
     private readonly exportColumns: ExportColumn[] = [
-        { key: 'name',        header: 'Nombre' },
-        { key: 'description', header: 'Descripción' },
-        { key: 'price',       header: 'Precio',        format: v => Number(v) },
-        { key: 'hasStock',    header: 'Maneja Stock',  format: v => (v ? 'Sí' : 'No') },
-        { key: 'stock',       header: 'Stock Inicial', format: v => Number(v) },
+        { key: 'name',         header: 'Nombre' },
+        { key: 'description',  header: 'Descripción' },
+        { key: 'purchaseCost', header: 'Costo Compra', format: v => Number(v) },
+        { key: 'prices',       header: 'Precio (Detal)', format: (v: any) => Array.isArray(v) ? (v[0]?.value ?? 0) : 0 },
+        { key: 'hasStock',     header: 'Maneja Stock',  format: v => (v ? 'Sí' : 'No') },
+        { key: 'stock',        header: 'Stock Actual',  format: v => Number(v) },
     ];
 
     myControl = new FormControl('');
@@ -152,7 +153,7 @@ export class Products implements OnInit {
                     errors,
                     previewColumns: [
                         { key: 'name',         label: 'Nombre' },
-                        { key: 'price',        label: 'Precio' },
+                        { key: 'price',        label: 'Precio (Detal)' },
                         { key: 'hasStockLabel',label: 'Maneja Stock' },
                         { key: 'initialStock', label: 'Stock Inicial' },
                     ],
@@ -168,7 +169,8 @@ export class Products implements OnInit {
                         const form = new FormData();
                         form.append('name',         row.name);
                         form.append('description',  row.description);
-                        form.append('price',        String(row.price));
+                        form.append('purchaseCost', '0');
+                        form.append('prices',       JSON.stringify([{ name: 'Venta al detal', value: row.price }]));
                         form.append('hasStock',     String(row.hasStock));
                         form.append('initialStock', String(row.initialStock));
                         return this.productService.create(this.businessId, form).pipe(

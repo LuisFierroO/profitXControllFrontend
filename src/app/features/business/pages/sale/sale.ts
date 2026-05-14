@@ -10,13 +10,14 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ProductService } from '../../services/product.service';
-import { Product } from '../../models/product.model';
+import { Product, PriceEntry } from '../../models/product.model';
 import { SaleService } from '../../services/sale.service';
 import { debounceTime } from 'rxjs';
 
 interface CartItem {
     product: Product;
     quantity: number;
+    selectedPriceEntry: PriceEntry;
 }
 
 @Component({
@@ -112,8 +113,16 @@ export class Sale implements OnInit {
         img.src = this.placeholder;
     }
 
+    getDefaultPrice(product: Product): PriceEntry {
+        return product.prices?.[0] ?? { name: 'Precio', value: 0 };
+    }
+
     addToCart(product: Product): void {
         if (product.hasStock && product.stock === 0) return;
+        if (!product.prices || product.prices.length === 0) {
+            this.snackBar.open('Este producto no tiene precios configurados', 'Cerrar', { duration: 3000 });
+            return;
+        }
 
         const existing = this.cartItems.find(i => i.product.id === product.id);
         if (existing) {
@@ -125,8 +134,19 @@ export class Sale implements OnInit {
             }
             existing.quantity++;
         } else {
-            this.cartItems = [...this.cartItems, { product, quantity: 1 }];
+            this.cartItems = [...this.cartItems, {
+                product,
+                quantity: 1,
+                selectedPriceEntry: this.getDefaultPrice(product),
+            }];
         }
+    }
+
+    setPriceType(productId: string, priceEntry: PriceEntry): void {
+        const item = this.cartItems.find(i => i.product.id === productId);
+        if (!item) return;
+        item.selectedPriceEntry = priceEntry;
+        this.cartItems = [...this.cartItems];
     }
 
     increaseQuantity(productId: string): void {
@@ -154,10 +174,7 @@ export class Sale implements OnInit {
         if (!item) return;
 
         let value = parseInt(input.value, 10);
-
-        if (isNaN(value) || value < 1) {
-            value = 1;
-        }
+        if (isNaN(value) || value < 1) value = 1;
 
         if (item.product.hasStock && value > item.product.stock) {
             value = item.product.stock;
@@ -185,17 +202,23 @@ export class Sale implements OnInit {
     }
 
     get total(): number {
-        return this.cartItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+        return this.cartItems.reduce(
+            (sum, item) => sum + item.selectedPriceEntry.value * item.quantity, 0
+        );
     }
 
     confirmSale(): void {
         if (this.cartItems.length === 0) return;
         this.isLoading = true;
 
-        const payload: { items: { productId: string; quantity: number }[]; amountPaid?: number } = {
+        const payload: {
+            items: { productId: string; quantity: number; priceTypeName: string }[];
+            amountPaid?: number;
+        } = {
             items: this.cartItems.map(item => ({
-                productId: item.product.id,
-                quantity: item.quantity
+                productId:     item.product.id,
+                quantity:      item.quantity,
+                priceTypeName: item.selectedPriceEntry.name,
             }))
         };
 
