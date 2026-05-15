@@ -207,45 +207,6 @@
 
             </div>
 
-            <!-- Rentabilidad por lista de precios -->
-            <mat-card class="price-profit-card">
-                <mat-card-content>
-                    <h2>Rentabilidad por lista de precios</h2>
-                    @if (priceTypeProfits().length === 0) {
-                        <div class="empty-state-small">
-                            <mat-icon>price_change</mat-icon>
-                            <p>Sin datos de ventas en este período</p>
-                        </div>
-                    } @else {
-                        <div class="price-profit-table">
-                            <div class="price-profit-header">
-                                <span>Lista de precios</span>
-                                <span>Ingresos</span>
-                                <span>Costo</span>
-                                <span>Ganancia bruta</span>
-                                <span>Margen</span>
-                            </div>
-                            @for (row of priceTypeProfits(); track row.priceTypeName) {
-                                <div class="price-profit-row">
-                                    <span class="price-type-name">{{ row.priceTypeName }}</span>
-                                    <span class="revenue-val">{{ row.totalRevenue | currency:'COP':'symbol':'1.0-0' }}</span>
-                                    <span class="cost-val">{{ row.totalCost | currency:'COP':'symbol':'1.0-0' }}</span>
-                                    <span class="profit-val" [class.negative]="row.grossProfit < 0">
-                                        {{ row.grossProfit | currency:'COP':'symbol':'1.0-0' }}
-                                    </span>
-                                    <span class="margin-val" [class.negative]="row.marginPercent < 0">
-                                        {{ row.marginPercent | number:'1.1-1' }}%
-                                    </span>
-                                </div>
-                            }
-                        </div>
-                        <p class="price-profit-note">
-                            El costo se calcula usando el costo de compra actual de cada producto.
-                        </p>
-                    }
-                </mat-card-content>
-            </mat-card>
-
             <!-- Alertas de inventario -->
             <mat-card class="alerts-card">
                 <mat-card-content>

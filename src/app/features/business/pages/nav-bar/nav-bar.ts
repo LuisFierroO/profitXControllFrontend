@@ -1,43 +1,46 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { MatCard, MatCardContent } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatLabel } from '@angular/material/form-field';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { BusinessResponse } from '../../../../shared/models/business.model';
 import { BusinessService } from '../../../../shared/services/business.service';
 import { BusinessContextService } from '../../../../shared/services/business-context.service';
+import { ThemeService } from '../../../../shared/services/theme.service';
 
 @Component({
     selector: 'app-nav-bar',
-    imports: [
-        MatCard,
-        MatCardContent,
-        MatButtonModule,
-        MatFormFieldModule,
-        MatLabel,
-        MatIconModule,
-    ],
+    imports: [RouterLink, RouterLinkActive, MatIconModule],
     templateUrl: './nav-bar.html',
     styleUrl: './nav-bar.scss',
 })
 export class NavBar implements OnInit {
+    private router     = inject(Router);
+    businessService    = inject(BusinessService);
+    context            = inject(BusinessContextService);
 
-    constructor(private router: Router) {}
+    theme    = inject(ThemeService);
+    business = signal<BusinessResponse | null>(null);
+    menuOpen = signal(false);
 
-    businessService = inject(BusinessService);
-    context         = inject(BusinessContextService);
+    readonly placeholder =
+        'data:image/svg+xml;base64,' +
+        btoa('<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"><rect width="40" height="40" rx="8" fill="#27272a"/><text x="20" y="25" text-anchor="middle" font-family="sans-serif" font-size="16" fill="#52525b">B</text></svg>');
 
-    business  = signal<BusinessResponse | null>(null);
-    menuOpen  = signal(false);
-
-    get currentUserRole() { return this.context.role(); }
     get canManage(): boolean {
         const r = this.context.role();
         return r === 'OWNER' || r === 'ADMIN';
     }
-    get isOwner(): boolean { return this.context.role() === 'OWNER'; }
+
+    get isOwner(): boolean {
+        return this.context.role() === 'OWNER';
+    }
+
+    get roleLabel(): string {
+        const labels: Record<string, string> = {
+            OWNER: 'Propietario', ADMIN: 'Administrador', EMPLOYEE: 'Empleado',
+        };
+        return this.context.role() ? (labels[this.context.role()!] ?? '') : '';
+    }
 
     ngOnInit(): void {
         const businessId = localStorage.getItem('currentBusinessId');
@@ -52,19 +55,17 @@ export class NavBar implements OnInit {
         }
     }
 
-    toggleMenu(): void { this.menuOpen.set(!this.menuOpen()); }
+    onImgError(event: Event): void {
+        const img = event.target as HTMLImageElement;
+        img.onerror = null;
+        img.src = this.placeholder;
+    }
 
-    listProducts()  { this.menuOpen.set(false); this.router.navigate(['dashboard/products']); }
-    sellProducts()  { this.menuOpen.set(false); this.router.navigate(['dashboard/sale']); }
-    listSales()     { this.menuOpen.set(false); this.router.navigate(['dashboard/sales']); }
-    listExpenses()  { this.menuOpen.set(false); this.router.navigate(['dashboard/expenses']); }
-    profitability() { this.menuOpen.set(false); this.router.navigate(['dashboard/profitability']); }
-    employees()     { this.menuOpen.set(false); this.router.navigate(['dashboard/members']); }
-    metrics()       { this.menuOpen.set(false); this.router.navigate(['dashboard/metrics']); }
-    auditLog()      { this.menuOpen.set(false); this.router.navigate(['dashboard/audit']); }
+    toggleMenu(): void { this.menuOpen.update(v => !v); }
+    closeMenu(): void  { this.menuOpen.set(false); }
 
     exit(): void {
-        this.menuOpen.set(false);
+        this.closeMenu();
         this.context.clear();
         this.router.navigate(['/app/bussines/list']);
     }

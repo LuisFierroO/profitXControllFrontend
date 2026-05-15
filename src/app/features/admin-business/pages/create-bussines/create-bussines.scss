@@ -1,112 +1,128 @@
 :host {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  height: 100%;
+  overflow-y: auto;
+  padding: var(--px-8);
+
+  @media (max-width: 767px) {
+    padding: var(--px-4);
+    padding-top: calc(var(--px-4) + 48px);
+  }
 }
 
 .create-bussines-container {
-    width: 100%;
-    max-width: 800px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 20px;
-    padding: clamp(12px, 4vw, 24px);
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--px-6);
+}
+
+.page-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--px-1);
+
+  h1 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--px-text-1);
+    letter-spacing: -.03em;
+    margin: 0;
+  }
+
+  p {
+    font-size: 13px;
+    color: var(--px-text-3);
+    margin: 0;
+  }
 }
 
 .create-bussines-card {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 20px;
-    width: 100%;
+  background: var(--px-surface-2);
+  border: 1px solid var(--px-border);
+  border-radius: var(--px-r-2xl);
+  padding: var(--px-6);
 }
 
 .create-bussines-content {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 20px;
-    width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--px-5);
+  width: 100%;
 }
 
 .bussines-form {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    gap: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--px-4);
+  width: 100%;
 }
 
-.text-field {
-    width: 100%;
-    max-width: 500px;
-}
+.text-field { width: 100%; }
 
 .image-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--px-3);
+}
+
+.image-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--px-text-2);
 }
 
 .img-preview {
-    width: min(300px, 100%);
-    aspect-ratio: 3 / 2;
-    object-fit: cover;
-    border-radius: 5px;
+  width: min(280px, 100%);
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  border-radius: var(--px-r-xl);
+  border: 1px solid var(--px-border);
 }
 
 .img-placeholder {
-    width: min(300px, 100%);
-    aspect-ratio: 3 / 2;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
-    border-radius: 5px;
-    color: gray;
+  width: min(280px, 100%);
+  aspect-ratio: 3 / 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: var(--px-2);
+  font-size: 13px;
+  border-radius: var(--px-r-xl);
+  background: var(--px-surface-3);
+  border: 1px dashed var(--px-border-hover);
+  color: var(--px-text-3);
+  cursor: pointer;
+  transition: background var(--px-fast), border-color var(--px-fast);
 
-    mat-icon {
-        font-size: 48px;
-        width: 48px;
-        height: 48px;
-        color: lightgray;
-    }
+  &:hover {
+    background: var(--px-surface-4);
+    border-color: var(--px-accent-border);
+  }
+
+  mat-icon {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+    opacity: .4;
+  }
 }
 
-.remove-image-btn {
-    color: red;
-}
+.remove-image-btn { color: var(--px-error) !important; }
 
 .buttons-row {
-    display: flex;
-    width: 100%;
-    max-width: 500px;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 12px;
-    margin-top: 8px;
-    flex-wrap: wrap;
-}
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--px-3);
+  padding-top: var(--px-2);
+  flex-wrap: wrap;
 
-@media (max-width: 479px) {
-    :host {
-        align-items: flex-start;
-    }
-
-    .buttons-row {
-        justify-content: stretch;
-
-        button {
-            flex: 1;
-        }
-    }
+  @media (max-width: 479px) {
+    button { flex: 1; }
+  }
 }

@@ -1,178 +1,301 @@
 :host {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
 }
 
-.list-bussines-wrapper {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    overflow: hidden;
-    gap: 0;
+// ─── Page ─────────────────────────────────────────────────────────────────────
+
+.list-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  padding: var(--px-8);
+  gap: var(--px-6);
+
+  @media (max-width: 767px) {
+    padding: var(--px-4);
+    gap: var(--px-4);
+    padding-top: calc(var(--px-4) + 48px);
+  }
 }
 
-// ── Toolbar ───────────────────────────────────────────────────────────────────
+// ─── Header ───────────────────────────────────────────────────────────────────
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--px-4);
+  flex-wrap: wrap;
+}
+
+.page-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: var(--px-1);
+}
+
+.page-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--px-text-1);
+  letter-spacing: -.03em;
+  margin: 0;
+}
+
+.page-subtitle {
+  font-size: 13px;
+  color: var(--px-text-3);
+  margin: 0;
+}
+
+// ─── Create button ────────────────────────────────────────────────────────────
+
+.btn-create {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--px-2);
+  padding: 0 var(--px-4);
+  height: 36px;
+  border-radius: var(--px-r-lg);
+  background: var(--px-accent);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: var(--px-font);
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: background var(--px-fast), transform var(--px-fast);
+  white-space: nowrap;
+
+  &:hover {
+    background: var(--px-accent-hover);
+  }
+
+  &:active { transform: scale(.98); }
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+}
+
+// ─── Toolbar ──────────────────────────────────────────────────────────────────
 
 .toolbar {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 16px 20px 8px;
-    flex-wrap: wrap;
+  display: flex;
+  align-items: center;
+  gap: var(--px-3);
+  flex-wrap: wrap;
 }
 
 .search-field {
-    flex: 1;
-    min-width: 180px;
+  flex: 1;
+  min-width: 200px;
+  max-width: 360px;
 }
 
 .role-filter {
-    height: 40px;
-    flex-shrink: 0;
+  flex-shrink: 0;
 }
 
-// ── Estados (carga / vacío) ───────────────────────────────────────────────────
+// ─── Grid ─────────────────────────────────────────────────────────────────────
 
-.state-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    flex: 1;
-    gap: 16px;
-    color: gray;
-    padding: 40px;
+.business-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
+  gap: var(--px-4);
+  overflow-y: auto;
+  flex: 1;
+  align-content: flex-start;
+  padding-bottom: var(--px-4);
 }
 
-.empty-icon {
-    font-size: 56px;
-    width: 56px;
-    height: 56px;
-    color: lightgray;
+// ─── Skeleton card ────────────────────────────────────────────────────────────
+
+.skeleton-card {
+  background: var(--px-surface-2);
+  border: 1px solid var(--px-border);
+  border-radius: var(--px-r-xl);
+  overflow: hidden;
 }
 
-// ── Grid de tarjetas ──────────────────────────────────────────────────────────
-
-.list-bussines-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr));
-    gap: 16px;
-    padding: 12px 16px 20px;
-    overflow-y: auto;
-    flex: 1;
-    align-content: flex-start;
+.skeleton-img {
+  height: 160px;
+  border-radius: 0;
 }
 
-mat-card-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    height: 100%;
+.skeleton-body {
+  padding: var(--px-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--px-2);
 }
 
-.bussines-card {
-    width: 100%;
-    min-height: 380px;
-    display: flex;
-    flex-direction: column;
+.skeleton-line {
+  height: 14px;
+  border-radius: var(--px-r-md);
 }
 
-.img-bussines {
-    width: 100%;
-    height: 180px;
-    object-fit: cover;
-    background-color: #e0e0e0;
-    border-radius: 5px;
-    margin-bottom: 8px;
+// ─── Business card ────────────────────────────────────────────────────────────
+
+.business-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--px-surface-2);
+  border: 1px solid var(--px-border);
+  border-radius: var(--px-r-xl);
+  overflow: hidden;
+  transition: border-color var(--px-fast), box-shadow var(--px-fast);
+  animation: px-fade-up var(--px-base) both;
+
+  &:hover {
+    border-color: var(--px-border-hover);
+    box-shadow: var(--px-shadow-md);
+  }
 }
 
-.bussines-info {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    gap: 6px;
+// ─── Card image ───────────────────────────────────────────────────────────────
 
-    h2 {
-        margin: 0;
-        font-size: 16px;
-    }
-
-    p {
-        margin: 0;
-        font-size: 13px;
-        color: gray;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
+.card-img-wrap {
+  position: relative;
+  height: 160px;
+  overflow: hidden;
+  background: var(--px-surface-3);
+  flex-shrink: 0;
 }
 
-// ── Badge de rol ──────────────────────────────────────────────────────────────
+.card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--px-slow);
+
+  .business-card:hover & { transform: scale(1.03); }
+}
 
 .role-badge {
-    display: inline-block;
-    padding: 2px 12px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 500;
+  position: absolute;
+  top: var(--px-3);
+  right: var(--px-3);
+  padding: 3px 8px;
+  border-radius: var(--px-r-full);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  backdrop-filter: blur(8px);
 
-    &.role-owner {
-        background-color: #ede7f6;
-        color: #4527a0;
-    }
-
-    &.role-admin {
-        background-color: #e3f2fd;
-        color: #1565c0;
-    }
-
-    &.role-employee {
-        background-color: #e8f5e9;
-        color: #2e7d32;
-    }
+  &.role-owner    { background: rgba(99,102,241,.25);  color: #a5b4fc; border: 1px solid rgba(99,102,241,.4); }
+  &.role-admin    { background: rgba(16,185,129,.2);   color: #6ee7b7; border: 1px solid rgba(16,185,129,.4); }
+  &.role-employee { background: rgba(245,158,11,.2);   color: #fcd34d; border: 1px solid rgba(245,158,11,.4); }
 }
 
-// ── Acciones ──────────────────────────────────────────────────────────────────
+// ─── Card body ────────────────────────────────────────────────────────────────
 
-.bussines-actions {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    margin-top: auto;
-    padding-bottom: 4px;
-    flex-wrap: wrap;
+.card-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--px-2);
+  padding: var(--px-4);
+  flex: 1;
 }
 
-.delete-btn {
-    color: #c62828;
+.card-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--px-text-1);
+  margin: 0;
+  letter-spacing: -.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-// ── Mobile toolbar: stack search + filter ─────────────────────────────────────
+.card-desc {
+  font-size: 12px;
+  color: var(--px-text-3);
+  margin: 0;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+// ─── Card footer ─────────────────────────────────────────────────────────────
+
+.card-footer {
+  display: flex;
+  align-items: center;
+  gap: var(--px-2);
+  padding: var(--px-3) var(--px-4);
+  border-top: 1px solid var(--px-border);
+  background: rgba(255,255,255,.015);
+}
+
+.btn-access {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--px-1);
+  flex: 1;
+  padding: 0 var(--px-3);
+  height: 32px;
+  border-radius: var(--px-r-md);
+  background: var(--px-accent);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--px-font);
+  border: none;
+  cursor: pointer;
+  transition: background var(--px-fast);
+  justify-content: center;
+
+  &:hover { background: var(--px-accent-hover); }
+
+  mat-icon { font-size: 14px; width: 14px; height: 14px; }
+}
+
+.btn-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--px-r-md);
+  background: transparent;
+  border: 1px solid var(--px-border);
+  color: var(--px-text-3);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--px-fast), color var(--px-fast), border-color var(--px-fast);
+  flex-shrink: 0;
+
+  &:hover {
+    background: rgba(255,255,255,.06);
+    color: var(--px-text-1);
+    border-color: var(--px-border-hover);
+  }
+
+  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+
+  &--danger:hover {
+    background: var(--px-error-bg);
+    color: var(--px-error);
+    border-color: var(--px-error-border);
+  }
+}
+
+// ─── Mobile ───────────────────────────────────────────────────────────────────
 
 @media (max-width: 599px) {
-    .toolbar {
-        flex-direction: column;
-        align-items: stretch;
-        padding: 12px 12px 6px;
-    }
-
-    .search-field {
-        min-width: 0;
-    }
-
-    .role-filter {
-        width: 100%;
-        height: auto;
-    }
-
-    .list-bussines-container {
-        padding: 8px 12px 16px;
-        gap: 12px;
-    }
+  .search-field { min-width: 0; max-width: none; }
+  .toolbar { flex-direction: column; align-items: stretch; }
+  .role-filter { width: 100%; }
+  .business-grid { grid-template-columns: 1fr; }
 }

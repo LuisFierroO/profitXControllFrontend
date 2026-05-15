@@ -1,22 +1,29 @@
-.flex {
-    display: flex;
-    height: 100dvh;
-    overflow: hidden;
+.app-shell {
+  display: flex;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--px-bg);
 }
 
-app-nabvar {
-    flex-shrink: 0;
+.app-sidebar {
+  flex-shrink: 0;
+  width: var(--px-sidebar);
+  height: 100%;
+  overflow: hidden;
+
+  @media (max-width: 767px) {
+    width: 0;
+    overflow: visible;
+  }
 }
 
-.content {
-    flex: 1;
-    display: block;
-    overflow-y: auto;
-    min-width: 0;
-}
+.app-main {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  background: var(--px-bg);
 
-@media (max-width: 767px) {
-    .content {
-        padding-top: 64px;
-    }
+  @media (max-width: 767px) {
+    padding-top: 56px;
+  }
 }

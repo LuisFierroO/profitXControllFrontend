@@ -1,57 +1,36 @@
 :host {
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    height: 100%;
-    overflow-y: auto;
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .create-product-container {
-    width: 100%;
-    max-width: 800px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 20px;
-    padding: 20px;
+    padding: 24px 28px;
 }
 
 .create-product-card {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 20px;
     width: 100%;
 }
 
 .create-product-content {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 20px;
-    width: 100%;
+    gap: 16px;
 }
 
 .product-form {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
     gap: 10px;
 }
 
 .text-field {
     width: 100%;
-    max-width: 500px;
+    display: block;
 }
 
 .stock-toggle-row {
     width: 100%;
-    max-width: 500px;
     display: flex;
     align-items: center;
     padding: 4px 0;
@@ -63,6 +42,7 @@
     align-items: center;
     gap: 12px;
     width: 100%;
+    margin-top: 8px;
 }
 
 .img-preview {
@@ -94,7 +74,7 @@
 
 @media (max-width: 599px) {
     .create-product-container {
-        padding: 12px;
+        padding: 12px 14px;
     }
 }
 
@@ -106,7 +86,6 @@
 
 .price-list-section {
     width: 100%;
-    max-width: 500px;
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -154,14 +133,14 @@
     min-width: 140px;
     flex-shrink: 0;
 
-    &.default-label { color: #3f008d; }
+    &.default-label { color: var(--px-accent); }
 }
 
 .default-badge {
     font-size: 10px;
     font-weight: 400;
-    color: #3f008d;
-    border: 1px solid rgba(63,0,141,0.3);
+    color: var(--px-accent);
+    border: 1px solid var(--px-accent-border);
     border-radius: 10px;
     padding: 1px 6px;
 }
@@ -191,9 +170,8 @@
 .buttons-row {
     display: flex;
     width: 100%;
-    max-width: 500px;
     justify-content: flex-end;
     align-items: center;
     gap: 12px;
-    margin-top: 8px;
+    margin-top: 4px;
 }

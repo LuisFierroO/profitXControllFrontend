@@ -27,38 +27,38 @@ import { TokenTimerService } from '../../services/token-timer.service';
     styles: [`
         .floating-timer {
             position: fixed;
-            bottom: 28px;
-            right: 28px;
+            bottom: 20px;
+            right: 20px;
             z-index: 9999;
 
             display: flex;
             align-items: center;
             gap: 6px;
-            padding: 10px 16px 10px 10px;
-            border-radius: 99px;
-            font-size: 13px;
-            font-weight: 700;
+            padding: 8px 14px 8px 10px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
             user-select: none;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-            backdrop-filter: blur(10px);
-            transition: background 0.4s, color 0.4s, border-color 0.4s, box-shadow 0.2s;
-
-            &:hover { box-shadow: 0 6px 24px rgba(0, 0, 0, 0.28); }
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(12px);
+            transition: background 0.3s, color 0.3s, border-color 0.3s;
+            letter-spacing: .03em;
 
             &.ok {
-                background: rgba(46, 125, 50, 0.14);
-                color: #2e7d32;
-                border: 1.5px solid rgba(46, 125, 50, 0.28);
+                background: rgba(16, 185, 129, 0.12);
+                color: #6ee7b7;
+                border: 1px solid rgba(16, 185, 129, 0.3);
             }
             &.warn {
-                background: rgba(230, 81, 0, 0.14);
-                color: #e65100;
-                border: 1.5px solid rgba(230, 81, 0, 0.32);
+                background: rgba(245, 158, 11, 0.12);
+                color: #fcd34d;
+                border: 1px solid rgba(245, 158, 11, 0.3);
             }
             &.danger {
-                background: rgba(198, 40, 40, 0.16);
-                color: #c62828;
-                border: 1.5px solid rgba(198, 40, 40, 0.36);
+                background: rgba(239, 68, 68, 0.14);
+                color: #fca5a5;
+                border: 1px solid rgba(239, 68, 68, 0.35);
                 animation: timer-pulse 1.2s ease-in-out infinite;
             }
 

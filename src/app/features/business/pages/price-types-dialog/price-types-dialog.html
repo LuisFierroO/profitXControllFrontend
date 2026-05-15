@@ -1,0 +1,69 @@
+<h2 mat-dialog-title class="dialog-title">
+    <mat-icon>sell</mat-icon>
+    <span>Listas de precios</span>
+    <span class="count">{{ priceTypes().length }}/4</span>
+</h2>
+
+<mat-dialog-content>
+    <div class="price-types-list">
+        @for (type of priceTypes(); track type.id) {
+            <div class="price-type-chip">
+                @if (editingTypeId() === type.id) {
+                    <input class="price-type-edit-input"
+                        [(ngModel)]="editingTypeName"
+                        (keydown.enter)="saveEditType(type)"
+                        (keydown.escape)="cancelEditType()"
+                        autofocus>
+                    <button mat-icon-button class="icon-btn-sm" (click)="saveEditType(type)" matTooltip="Guardar">
+                        <mat-icon>check</mat-icon>
+                    </button>
+                    <button mat-icon-button class="icon-btn-sm" (click)="cancelEditType()" matTooltip="Cancelar">
+                        <mat-icon>close</mat-icon>
+                    </button>
+                } @else {
+                    <span class="price-type-name">{{ type.name }}</span>
+                    @if (canManage) {
+                        <button mat-icon-button class="icon-btn-sm" (click)="startEditType(type)" matTooltip="Renombrar">
+                            <mat-icon>edit</mat-icon>
+                        </button>
+                        <button mat-icon-button class="icon-btn-sm delete-btn" (click)="deletePriceType(type)" matTooltip="Eliminar">
+                            <mat-icon>delete_outline</mat-icon>
+                        </button>
+                    }
+                }
+            </div>
+        }
+
+        @if (isAddingType()) {
+            <div class="price-type-chip add-chip">
+                <input class="price-type-edit-input"
+                    [(ngModel)]="newTypeName"
+                    placeholder="Nombre (ej. Venta al por mayor)"
+                    (keydown.enter)="addPriceType()"
+                    (keydown.escape)="isAddingType.set(false)"
+                    autofocus>
+                <button mat-icon-button class="icon-btn-sm" (click)="addPriceType()" matTooltip="Guardar">
+                    <mat-icon>check</mat-icon>
+                </button>
+                <button mat-icon-button class="icon-btn-sm" (click)="isAddingType.set(false)" matTooltip="Cancelar">
+                    <mat-icon>close</mat-icon>
+                </button>
+            </div>
+        }
+
+        @if (priceTypes().length === 0 && !isAddingType()) {
+            <p class="price-types-empty">
+                Sin tipos definidos. Agrega al menos uno para crear productos con precios consistentes.
+            </p>
+        }
+    </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    @if (canManage && priceTypes().length < 4 && !isAddingType()) {
+        <button mat-stroked-button (click)="isAddingType.set(true)">
+            <mat-icon>add</mat-icon> Agregar tipo
+        </button>
+    }
+    <button mat-button mat-dialog-close>Cerrar</button>
+</mat-dialog-actions>

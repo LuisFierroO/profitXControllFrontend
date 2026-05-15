@@ -1,72 +1,512 @@
-
-// Include theming for Angular Material with `mat.theme()`.
-// This Sass mixin will define CSS variables that are used for styling Angular Material
-// components according to the Material 3 design spec.
-// Learn more about theming and how to use it for your application's
-// custom components at https://material.angular.dev/guide/theming
 @use '@angular/material' as mat;
 @use './_theme-colors.scss' as my-theme;
 @include mat.core();
 
+// ─── Google Fonts ─────────────────────────────────────────────────────────────
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+// ─── Material Theme — Light (default) ─────────────────────────────────────────
 html {
-  height: 100%;
   @include mat.theme((
     color: (
-      primary: my-theme.$primary-palette,
-
-      tertiary: my-theme.$tertiary-palette,
+      primary:    my-theme.$primary-palette,
+      tertiary:   my-theme.$tertiary-palette,
+      theme-type: light,
     ),
-    typography: Roboto,
+    typography: Inter,
     density: 0,
   ));
 }
 
+// ─── Material Theme — Dark ────────────────────────────────────────────────────
+html.dark {
+  @include mat.theme((
+    color: (
+      primary:    my-theme.$primary-palette,
+      tertiary:   my-theme.$tertiary-palette,
+      theme-type: dark,
+    ),
+    typography: Inter,
+    density: 0,
+  ));
+}
 
+// ─── Design Tokens — Invariant (spacing, radii, motion, fonts, layout) ────────
+:root {
+  --px-font:      'Inter', system-ui, -apple-system, sans-serif;
+  --px-font-mono: 'JetBrains Mono', 'Cascadia Code', monospace;
+
+  --px-1:  4px;
+  --px-2:  8px;
+  --px-3:  12px;
+  --px-4:  16px;
+  --px-5:  20px;
+  --px-6:  24px;
+  --px-8:  32px;
+  --px-10: 40px;
+  --px-12: 48px;
+  --px-16: 64px;
+
+  --px-r-sm:   4px;
+  --px-r-md:   6px;
+  --px-r-lg:   8px;
+  --px-r-xl:   12px;
+  --px-r-2xl:  16px;
+  --px-r-full: 9999px;
+
+  --px-fast:   120ms cubic-bezier(0.16, 1, 0.3, 1);
+  --px-base:   200ms cubic-bezier(0.16, 1, 0.3, 1);
+  --px-slow:   300ms cubic-bezier(0.16, 1, 0.3, 1);
+  --px-spring: 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  --px-sidebar: 220px;
+  --px-header:  56px;
+  --px-max:     1200px;
+}
+
+// ─── Design Tokens — Light (default) ──────────────────────────────────────────
+html {
+  color-scheme: light;
+
+  // Backgrounds
+  --px-bg:        #ffffff;
+  --px-surface-1: #fafafa;
+  --px-surface-2: #f4f4f5;
+  --px-surface-3: #e4e4e7;
+  --px-surface-4: #d4d4d8;
+
+  // Borders
+  --px-border:       rgba(0, 0, 0, 0.08);
+  --px-border-hover: rgba(0, 0, 0, 0.14);
+  --px-border-focus: rgba(79, 70, 229, 0.5);
+
+  // Text
+  --px-text-1: #09090b;
+  --px-text-2: #3f3f46;
+  --px-text-3: #71717a;
+  --px-text-4: #a1a1aa;
+
+  // Accent (darker indigo for sufficient contrast on white)
+  --px-accent:        #4f46e5;
+  --px-accent-hover:  #4338ca;
+  --px-accent-active: #3730a3;
+  --px-accent-bg:     rgba(79, 70, 229, 0.08);
+  --px-accent-border: rgba(79, 70, 229, 0.22);
+
+  // Semantic
+  --px-success:        #059669;
+  --px-success-bg:     rgba(5, 150, 105, 0.08);
+  --px-success-border: rgba(5, 150, 105, 0.22);
+  --px-warning:        #d97706;
+  --px-warning-bg:     rgba(217, 119, 6, 0.08);
+  --px-warning-border: rgba(217, 119, 6, 0.22);
+  --px-error:          #dc2626;
+  --px-error-bg:       rgba(220, 38, 38, 0.08);
+  --px-error-border:   rgba(220, 38, 38, 0.22);
+
+  // Hover background (for menus, nav items, etc.)
+  --px-hover-bg: rgba(0, 0, 0, 0.04);
+
+  // Shadows
+  --px-shadow-xs: 0 1px 2px rgba(0, 0, 0, .06);
+  --px-shadow-sm: 0 2px 4px rgba(0, 0, 0, .08), 0 0 0 1px rgba(0, 0, 0, .04);
+  --px-shadow-md: 0 4px 12px rgba(0, 0, 0, .10), 0 0 0 1px rgba(0, 0, 0, .04);
+  --px-shadow-lg: 0 8px 24px rgba(0, 0, 0, .12), 0 0 0 1px rgba(0, 0, 0, .04);
+
+  // Material sys overrides — Light
+  --mat-sys-surface:                    var(--px-bg);
+  --mat-sys-surface-container-lowest:   var(--px-surface-1);
+  --mat-sys-surface-container-low:      var(--px-surface-1);
+  --mat-sys-surface-container:          var(--px-surface-2);
+  --mat-sys-surface-container-high:     var(--px-surface-2);
+  --mat-sys-surface-container-highest:  var(--px-surface-3);
+  --mat-sys-background:                 var(--px-bg);
+  --mat-sys-on-background:              var(--px-text-1);
+  --mat-sys-on-surface:                 var(--px-text-1);
+  --mat-sys-on-surface-variant:         var(--px-text-2);
+  --mat-sys-outline:                    var(--px-border);
+  --mat-sys-outline-variant:            var(--px-border);
+  --mat-sys-primary:                    #4f46e5;
+  --mat-sys-on-primary:                 #ffffff;
+  --mat-sys-primary-container:          rgba(79, 70, 229, 0.12);
+  --mat-sys-on-primary-container:       #3730a3;
+  --mat-sys-inverse-primary:            var(--px-accent);
+}
+
+// ─── Design Tokens — Dark ─────────────────────────────────────────────────────
+html.dark {
+  color-scheme: dark;
+
+  --px-bg:        #09090b;
+  --px-surface-1: #111113;
+  --px-surface-2: #18181b;
+  --px-surface-3: #27272a;
+  --px-surface-4: #3f3f46;
+
+  --px-border:       rgba(255, 255, 255, 0.07);
+  --px-border-hover: rgba(255, 255, 255, 0.13);
+  --px-border-focus: rgba(148, 143, 210, 0.5);
+
+  --px-text-1: #fafafa;
+  --px-text-2: #a1a1aa;
+  --px-text-3: #71717a;
+  --px-text-4: #52525b;
+
+  --px-accent:        #948fd2;
+  --px-accent-hover:  #aba6de;
+  --px-accent-active: #7e79bb;
+  --px-accent-bg:     rgba(148, 143, 210, 0.10);
+  --px-accent-border: rgba(148, 143, 210, 0.25);
+
+  --px-success:        #10b981;
+  --px-success-bg:     rgba(16, 185, 129, 0.10);
+  --px-success-border: rgba(16, 185, 129, 0.28);
+  --px-warning:        #f59e0b;
+  --px-warning-bg:     rgba(245, 158, 11, 0.10);
+  --px-warning-border: rgba(245, 158, 11, 0.28);
+  --px-error:          #ef4444;
+  --px-error-bg:       rgba(239, 68, 68, 0.10);
+  --px-error-border:   rgba(239, 68, 68, 0.28);
+
+  --px-hover-bg: rgba(255, 255, 255, 0.06);
+
+  --px-shadow-xs: 0 1px 2px rgba(0, 0, 0, .5);
+  --px-shadow-sm: 0 2px 4px rgba(0, 0, 0, .4), 0 0 0 1px rgba(255, 255, 255, .04);
+  --px-shadow-md: 0 4px 12px rgba(0, 0, 0, .5), 0 0 0 1px rgba(255, 255, 255, .04);
+  --px-shadow-lg: 0 8px 24px rgba(0, 0, 0, .6), 0 0 0 1px rgba(255, 255, 255, .06);
+
+  // Material sys overrides — Dark
+  --mat-sys-surface:                    var(--px-bg);
+  --mat-sys-surface-container-lowest:   var(--px-surface-1);
+  --mat-sys-surface-container-low:      var(--px-surface-1);
+  --mat-sys-surface-container:          var(--px-surface-2);
+  --mat-sys-surface-container-high:     var(--px-surface-2);
+  --mat-sys-surface-container-highest:  var(--px-surface-3);
+  --mat-sys-background:                 var(--px-bg);
+  --mat-sys-on-background:              var(--px-text-1);
+  --mat-sys-on-surface:                 var(--px-text-1);
+  --mat-sys-on-surface-variant:         var(--px-text-2);
+  --mat-sys-outline:                    var(--px-border);
+  --mat-sys-outline-variant:            var(--px-border);
+  --mat-sys-primary:                    #aba6de;
+  --mat-sys-on-primary:                 #1e1b4b;
+  --mat-sys-primary-container:          rgba(148, 143, 210, 0.18);
+  --mat-sys-on-primary-container:       #e0e7ff;
+  --mat-sys-inverse-primary:            var(--px-accent);
+}
+
+// ─── Reset ────────────────────────────────────────────────────────────────────
+*, *::before, *::after { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; padding: 0; }
 
 body {
-  // Default the application to a light color theme. This can be changed to
-  // `dark` to enable the dark color theme, or to `light dark` to defer to the
-  // user's system settings.
-  color-scheme: light dark;
-
-  // Set a default background, font and text colors for the application using
-  // Angular Material's system-level CSS variables. Learn more about these
-  // variables at https://material.angular.dev/guide/system-variables
-  background-color: var(--mat-sys-surface);
-  color: var(--mat-sys-on-surface);
-  font: var(--mat-sys-body-medium);
-
-  // Reset the user agent margin.
-  margin: 0;
-  height: 100%;
+  font-family: var(--px-font);
+  font-size: 14px;
+  line-height: 1.5;
+  background-color: var(--px-bg);
+  color: var(--px-text-1);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
-/* You can add global styles to this file, and also import other style files */
+
+h1, h2, h3, h4, h5, h6 { font-family: var(--px-font); margin: 0; }
+p { margin: 0; }
+a { color: var(--px-accent); text-decoration: none; }
+
+// ─── Scrollbar ────────────────────────────────────────────────────────────────
+::-webkit-scrollbar              { width: 5px; height: 5px; }
+::-webkit-scrollbar-track        { background: transparent; }
+::-webkit-scrollbar-thumb        { background: var(--px-surface-3); border-radius: var(--px-r-full); }
+::-webkit-scrollbar-thumb:hover  { background: var(--px-surface-4); }
+
+// ─── Material Component Overrides ─────────────────────────────────────────────
+
+// Form fields
+.mat-mdc-form-field {
+  --mdc-filled-text-field-container-color:              var(--px-surface-2);
+  --mdc-filled-text-field-hover-container-color:        var(--px-surface-3);
+  --mdc-filled-text-field-focus-active-indicator-color: var(--px-accent);
+  --mdc-filled-text-field-label-text-color:             var(--px-text-3);
+  --mdc-filled-text-field-input-text-color:             var(--px-text-1);
+  --mdc-outlined-text-field-outline-color:              var(--px-border);
+  --mdc-outlined-text-field-hover-outline-color:        var(--px-border-hover);
+  --mdc-outlined-text-field-focus-outline-color:        var(--px-accent);
+  --mdc-outlined-text-field-input-text-color:           var(--px-text-1);
+  --mdc-outlined-text-field-label-text-color:           var(--px-text-3);
+  font-family: var(--px-font) !important;
+}
+
+// Cards
+.mat-mdc-card {
+  --mdc-elevated-card-container-color: var(--px-surface-2);
+  --mdc-outlined-card-container-color: var(--px-surface-2);
+  --mdc-outlined-card-outline-color:   var(--px-border);
+  background: var(--px-surface-2) !important;
+  border: 1px solid var(--px-border) !important;
+  border-radius: var(--px-r-xl) !important;
+  box-shadow: none !important;
+}
+
+// Buttons — filled/raised
+.mat-mdc-unelevated-button,
+.mat-mdc-raised-button {
+  --mdc-filled-button-container-color:  var(--px-accent);
+  --mdc-filled-button-label-text-color: #fff;
+  --mdc-filled-button-container-shape:  var(--px-r-lg);
+  border-radius: var(--px-r-lg) !important;
+  font-family: var(--px-font) !important;
+  font-weight: 500 !important;
+  letter-spacing: 0 !important;
+  transition: background var(--px-fast), box-shadow var(--px-fast) !important;
+
+  &:hover:not(:disabled) {
+    --mdc-filled-button-container-color: var(--px-accent-hover);
+  }
+}
+
+// Buttons — outlined
+.mat-mdc-outlined-button {
+  --mdc-outlined-button-outline-color:    var(--px-border);
+  --mdc-outlined-button-label-text-color: var(--px-text-1);
+  --mdc-outlined-button-container-shape:  var(--px-r-lg);
+  border-radius: var(--px-r-lg) !important;
+  font-family: var(--px-font) !important;
+  font-weight: 500 !important;
+  letter-spacing: 0 !important;
+}
+
+// Buttons — text
+.mat-mdc-button {
+  --mdc-text-button-label-text-color: var(--px-text-2);
+  --mdc-text-button-container-shape:  var(--px-r-lg);
+  border-radius: var(--px-r-lg) !important;
+  font-family: var(--px-font) !important;
+  font-weight: 500 !important;
+  letter-spacing: 0 !important;
+}
+
+// Icon buttons
+.mat-mdc-icon-button {
+  color: var(--px-text-2) !important;
+  border-radius: var(--px-r-lg) !important;
+}
+
+// Dialogs
+.mat-mdc-dialog-container {
+  --mdc-dialog-container-color:       var(--px-surface-2);
+  --mdc-dialog-subhead-color:         var(--px-text-1);
+  --mdc-dialog-supporting-text-color: var(--px-text-2);
+  border: 1px solid var(--px-border) !important;
+  border-radius: var(--px-r-2xl) !important;
+}
+.mat-mdc-dialog-surface {
+  border-radius: var(--px-r-2xl) !important;
+}
+
+// Snackbars
+.mat-mdc-snack-bar-container {
+  --mdc-snackbar-container-color:       var(--px-surface-3);
+  --mdc-snackbar-supporting-text-color: var(--px-text-1);
+  border: 1px solid var(--px-border) !important;
+  border-radius: var(--px-r-lg) !important;
+  font-family: var(--px-font) !important;
+}
+
+// Spinner
+.mat-mdc-progress-spinner circle { stroke: var(--px-accent); }
+
+// Select / Autocomplete panels
+.mat-mdc-select-panel,
+.mat-mdc-autocomplete-panel {
+  background: var(--px-surface-3) !important;
+  border: 1px solid var(--px-border) !important;
+  border-radius: var(--px-r-xl) !important;
+  box-shadow: var(--px-shadow-lg) !important;
+}
+
+// Menus
+.mat-mdc-menu-panel {
+  background: var(--px-surface-3) !important;
+  border: 1px solid var(--px-border) !important;
+  border-radius: var(--px-r-xl) !important;
+  box-shadow: var(--px-shadow-lg) !important;
+  min-width: 160px !important;
+}
+.mat-mdc-menu-item {
+  font-family: var(--px-font) !important;
+  color: var(--px-text-2) !important;
+  font-size: 13px !important;
+  &:hover { color: var(--px-text-1) !important; background: var(--px-hover-bg) !important; }
+}
+
+// Tooltips
+.mat-mdc-tooltip {
+  --mdc-plain-tooltip-container-color:        var(--px-surface-4);
+  --mdc-plain-tooltip-supporting-text-color:  var(--px-text-1);
+  border: 1px solid var(--px-border);
+  border-radius: var(--px-r-md) !important;
+  font-size: 12px !important;
+  font-family: var(--px-font) !important;
+}
+
+// Datepicker
+.mat-datepicker-content {
+  background: var(--px-surface-3) !important;
+  border: 1px solid var(--px-border) !important;
+  border-radius: var(--px-r-xl) !important;
+  box-shadow: var(--px-shadow-lg) !important;
+}
+
+// Button toggles
+.mat-button-toggle-group {
+  border: 1px solid var(--px-border) !important;
+  border-radius: var(--px-r-lg) !important;
+  background: var(--px-surface-2) !important;
+  overflow: hidden;
+}
+.mat-button-toggle {
+  font-family: var(--px-font) !important;
+  font-size: 13px !important;
+  color: var(--px-text-3) !important;
+  background: transparent !important;
+  border: none !important;
+
+  &.mat-button-toggle-checked {
+    background: var(--px-surface-3) !important;
+    color: var(--px-text-1) !important;
+  }
+}
+
+// Slide toggle
+.mat-mdc-slide-toggle {
+  --mdc-switch-selected-track-color:    var(--px-accent);
+  --mdc-switch-selected-handle-color:   #fff;
+  --mdc-switch-unselected-track-color:  var(--px-surface-3);
+  --mdc-switch-unselected-handle-color: var(--px-text-3);
+}
+
+// Checkboxes
+.mat-mdc-checkbox {
+  --mdc-checkbox-selected-checkmark-color: #fff;
+  --mdc-checkbox-selected-icon-color:      var(--px-accent);
+  --mdc-checkbox-unselected-icon-color:    var(--px-border-hover);
+}
+
+// ─── Global Utility Classes ───────────────────────────────────────────────────
+
+.px-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--px-r-full);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .01em;
+  white-space: nowrap;
+
+  &--accent  { background: var(--px-accent-bg);  color: var(--px-accent-hover); border: 1px solid var(--px-accent-border); }
+  &--success { background: var(--px-success-bg); color: var(--px-success);      border: 1px solid var(--px-success-border); }
+  &--warning { background: var(--px-warning-bg); color: var(--px-warning);      border: 1px solid var(--px-warning-border); }
+  &--error   { background: var(--px-error-bg);   color: var(--px-error);        border: 1px solid var(--px-error-border); }
+  &--neutral { background: var(--px-surface-3);  color: var(--px-text-2);       border: 1px solid var(--px-border); }
+}
+
+.px-card {
+  background: var(--px-surface-2);
+  border: 1px solid var(--px-border);
+  border-radius: var(--px-r-xl);
+  padding: var(--px-6);
+}
+
+.px-page {
+  padding: var(--px-6) var(--px-8);
+  width: 100%;
+
+  @media (max-width: 767px) { padding: var(--px-4); }
+}
+
+.px-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--px-6);
+  gap: var(--px-4);
+
+  h1, h2, h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--px-text-1);
+    letter-spacing: -.02em;
+    margin: 0;
+  }
+}
+
+.px-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--px-12) var(--px-6);
+  gap: var(--px-3);
+  color: var(--px-text-3);
+  text-align: center;
+
+  mat-icon { font-size: 36px; width: 36px; height: 36px; opacity: .35; }
+  p { font-size: 13px; color: var(--px-text-3); }
+  small { font-size: 12px; color: var(--px-text-4); }
+}
+
+.px-divider {
+  height: 1px;
+  background: var(--px-border);
+  margin: var(--px-4) 0;
+}
+
+.px-mono {
+  font-family: var(--px-font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+// ─── Legacy compatibility shims ───────────────────────────────────────────────
 
 .text-field {
-  width: 80%;
-}
-.text-field .mat-mdc-text-field-wrapper {
-  border-radius: 20px;
+  width: 100%;
 
-}
-@media (prefers-color-scheme: dark) {
-  .text-field .mat-mdc-text-field-wrapper {
-    box-shadow: 
-      inset 4px 4px 8px #0b0b0f,
-      inset -4px -4px 8px #2a2a3a;
-  }
+  .mdc-line-ripple { display: none; }
+  .mat-mdc-text-field-wrapper { border-radius: var(--px-r-xl) !important; }
 }
 
-@media (prefers-color-scheme: light) {
-  .text-field .mat-mdc-text-field-wrapper {
-    box-shadow: 
-      inset 4px 4px 8px #d1d1d1,
-      inset -4px -4px 8px #ffffff;
-  }
+// ─── Animations ───────────────────────────────────────────────────────────────
 
-  
+@keyframes px-fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-.text-field .mdc-line-ripple {
-  display: none;
+@keyframes px-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes px-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+.px-animate-fade-up {
+  animation: px-fade-up var(--px-base) both;
+}
+
+// ─── Skeleton loader ──────────────────────────────────────────────────────────
+.px-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--px-surface-2) 25%,
+    var(--px-surface-3) 50%,
+    var(--px-surface-2) 75%
+  );
+  background-size: 200% 100%;
+  animation: px-shimmer 1.5s infinite;
+  border-radius: var(--px-r-lg);
 }

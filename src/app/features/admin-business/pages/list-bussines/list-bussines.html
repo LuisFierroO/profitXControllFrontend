@@ -1,80 +1,107 @@
-<div class="list-bussines-wrapper">
+<div class="list-page">
 
-    <!-- Barra de búsqueda y filtros -->
-    <div class="toolbar">
-        <mat-form-field class="search-field text-field">
-            <mat-label>Buscar negocio</mat-label>
-            <input matInput [formControl]="searchControl" placeholder="Nombre del negocio">
-            <mat-icon matSuffix>search</mat-icon>
-        </mat-form-field>
-
-        <mat-button-toggle-group [formControl]="roleFilter" class="role-filter">
-            <mat-button-toggle value="ALL">Todos</mat-button-toggle>
-            <mat-button-toggle value="OWNER">Dueño</mat-button-toggle>
-            <mat-button-toggle value="ADMIN">Admin</mat-button-toggle>
-            <mat-button-toggle value="EMPLOYEE">Empleado</mat-button-toggle>
-        </mat-button-toggle-group>
+  <!-- Header -->
+  <div class="page-header">
+    <div class="page-header-left">
+      <h1 class="page-title">Mis negocios</h1>
+      <p class="page-subtitle">Selecciona o gestiona tus negocios</p>
     </div>
+    <a class="btn-create" routerLink="/app/bussines/create">
+      <mat-icon>add</mat-icon>
+      Nuevo negocio
+    </a>
+  </div>
 
-    <!-- Estado de carga -->
-    @if (isLoading) {
-        <div class="state-container">
-            <mat-spinner diameter="48"></mat-spinner>
-            <p>Cargando negocios...</p>
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <mat-form-field class="search-field text-field" appearance="outline">
+      <mat-icon matPrefix>search</mat-icon>
+      <mat-label>Buscar negocio</mat-label>
+      <input matInput [formControl]="searchControl" placeholder="Nombre...">
+    </mat-form-field>
+
+    <mat-button-toggle-group [formControl]="roleFilter" class="role-filter" hideSingleSelectionIndicator>
+      <mat-button-toggle value="ALL">Todos</mat-button-toggle>
+      <mat-button-toggle value="OWNER">Dueño</mat-button-toggle>
+      <mat-button-toggle value="ADMIN">Admin</mat-button-toggle>
+      <mat-button-toggle value="EMPLOYEE">Empleado</mat-button-toggle>
+    </mat-button-toggle-group>
+  </div>
+
+  <!-- Loading state -->
+  @if (isLoading) {
+    <div class="business-grid">
+      @for (_ of [1,2,3,4,5,6]; track $index) {
+        <div class="skeleton-card">
+          <div class="px-skeleton skeleton-img"></div>
+          <div class="skeleton-body">
+            <div class="px-skeleton skeleton-line" style="width:60%"></div>
+            <div class="px-skeleton skeleton-line" style="width:40%"></div>
+          </div>
         </div>
-    }
+      }
+    </div>
+  }
 
-    <!-- Sin resultados -->
-    @else if (filteredBusinesses.length === 0) {
-        <div class="state-container">
-            <mat-icon class="empty-icon">store_off</mat-icon>
-            <p>No se encontraron negocios</p>
-            @if (searchControl.value || roleFilter.value !== 'ALL') {
-                <button mat-stroked-button (click)="clearFilters()">Limpiar filtros</button>
+  <!-- Empty state -->
+  @else if (filteredBusinesses.length === 0) {
+    <div class="px-empty-state">
+      <mat-icon>store_off</mat-icon>
+      <p>No se encontraron negocios</p>
+      @if (searchControl.value || roleFilter.value !== 'ALL') {
+        <small>Prueba con otros filtros</small>
+        <button matButton (click)="clearFilters()">Limpiar filtros</button>
+      } @else {
+        <a class="btn-create" routerLink="/app/bussines/create">
+          <mat-icon>add</mat-icon>
+          Crear primer negocio
+        </a>
+      }
+    </div>
+  }
+
+  <!-- Grid -->
+  @else {
+    <div class="business-grid">
+      @for (business of filteredBusinesses; track business.id) {
+        <div class="business-card">
+          <!-- Image -->
+          <div class="card-img-wrap">
+            <img class="card-img"
+                 [src]="business.imgUrl || PLACEHOLDER"
+                 (error)="onImgError($event)"
+                 [alt]="business.name">
+            <span class="role-badge" [ngClass]="getRoleClass(business.currentUserRole)">
+              {{ getRoleLabel(business.currentUserRole) }}
+            </span>
+          </div>
+
+          <!-- Body -->
+          <div class="card-body">
+            <h2 class="card-name">{{ business.name }}</h2>
+            @if (business.description) {
+              <p class="card-desc">{{ business.description }}</p>
             }
-        </div>
-    }
+          </div>
 
-    <!-- Lista de negocios -->
-    @else {
-        <div class="list-bussines-container">
-            @for (business of filteredBusinesses; track business.id) {
-                <mat-card class="bussines-card">
-                    <mat-card-content>
-
-                        <img
-                            [src]="business.imgUrl || 'assets/placeholder-business.png'"
-                            class="img-bussines"
-                            alt="{{ business.name }}"
-                            (error)="onImgError($event)">
-
-                        <div class="bussines-info">
-                            <h2>{{ business.name }}</h2>
-                            <p>{{ business.description }}</p>
-                            <span class="role-badge" [ngClass]="getRoleClass(business.currentUserRole)">
-                                {{ getRoleLabel(business.currentUserRole) }}
-                            </span>
-                        </div>
-
-                        <div class="bussines-actions">
-                            <button matButton="filled" (click)="accesBussines(business.id)">
-                                Acceder
-                            </button>
-                            @if (business.currentUserRole === 'OWNER') {
-                                <button matButton="elevated" (click)="editBussines(business.id)">
-                                    Editar
-                                </button>
-                                <button matButton="text" class="delete-btn"
-                                    (click)="deleteBussines(business)">
-                                    Eliminar
-                                </button>
-                            }
-                        </div>
-
-                    </mat-card-content>
-                </mat-card>
+          <!-- Actions -->
+          <div class="card-footer">
+            <button class="btn-access" (click)="accesBussines(business.id)">
+              Acceder
+              <mat-icon>arrow_forward</mat-icon>
+            </button>
+            @if (business.currentUserRole === 'OWNER') {
+              <button class="btn-icon" (click)="editBussines(business.id)" matTooltip="Editar">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button class="btn-icon btn-icon--danger" (click)="deleteBussines(business)" matTooltip="Eliminar">
+                <mat-icon>delete</mat-icon>
+              </button>
             }
+          </div>
         </div>
-    }
+      }
+    </div>
+  }
 
 </div>

@@ -42,7 +42,9 @@
                   "with": "src/environments/environment.prod.ts"
                 }
               ],
-              "allowedCommonJsDependencies": ["papaparse"],
+              "allowedCommonJsDependencies": [
+                "papaparse"
+              ],
               "budgets": [
                 {
                   "type": "initial",
@@ -51,8 +53,8 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
+                  "maximumWarning": "8kB",
+                  "maximumError": "20kB"
                 }
               ],
               "outputHashing": "all"
@@ -68,7 +70,9 @@
         "serve": {
           "builder": "@angular/build:dev-server",
           "options": {
-            "allowedHosts": [".trycloudflare.com"],
+            "allowedHosts": [
+              ".trycloudflare.com"
+            ],
             "host": "0.0.0.0",
             "proxyConfig": "proxy.conf.json"
           },

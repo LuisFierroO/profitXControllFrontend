@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, signal, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCardModule } from '@angular/material/card';
@@ -10,6 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { BusinessService } from '../../../../shared/services/business.service';
 import { BusinessContextService } from '../../../../shared/services/business-context.service';
 import { BusinessResponse } from '../../../../shared/models/business.model';
@@ -22,6 +23,7 @@ import { ConfirmDialogService } from '../../../../shared/services/confirm-dialog
     imports: [
         CommonModule,
         ReactiveFormsModule,
+        RouterLink,
         MatCardModule,
         MatButtonModule,
         MatButtonToggleModule,
@@ -30,6 +32,7 @@ import { ConfirmDialogService } from '../../../../shared/services/confirm-dialog
         MatIconModule,
         MatProgressSpinnerModule,
         MatSnackBarModule,
+        MatTooltipModule,
     ],
     templateUrl: './list-bussines.html',
     styleUrl: './list-bussines.scss',

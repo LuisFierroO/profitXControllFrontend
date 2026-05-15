@@ -5,18 +5,11 @@ import { BusinessContextService } from '../../../../shared/services/business-con
 import { Login } from '../login/login';
 import { Register } from '../register/register';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCard } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 
 @Component({
     selector: 'app-acces',
-    imports: [
-        Login,
-        Register,
-        MatButtonModule,
-        MatCard,
-        MatIconModule,
-    ],
+    imports: [Login, Register, MatButtonModule, MatIconModule],
     templateUrl: './acces.html',
     styleUrl: './acces.scss',
 })

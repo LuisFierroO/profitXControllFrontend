@@ -5,6 +5,7 @@ import { filter, map } from 'rxjs';
 import { TokenCountdown } from './shared/components/token-countdown/token-countdown';
 import { TokenTimerService } from './shared/services/token-timer.service';
 import { AuthService } from './features/auth/services/auth.service';
+import { ThemeService } from './shared/services/theme.service';
 
 @Component({
     selector: 'app-root',
@@ -16,6 +17,7 @@ export class App implements OnInit {
     private router = inject(Router);
     private timer  = inject(TokenTimerService);
     private auth   = inject(AuthService);
+    readonly theme = inject(ThemeService);
 
     private currentUrl = toSignal(
         this.router.events.pipe(

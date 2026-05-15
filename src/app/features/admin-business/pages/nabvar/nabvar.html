@@ -1,21 +1,59 @@
-<button class="menu-toggle" (click)="toggleMenu()" [attr.aria-expanded]="menuOpen()" aria-label="Abrir menú">
-    <mat-icon>{{ menuOpen() ? 'close' : 'menu' }}</mat-icon>
+<!-- Mobile toggle -->
+<button class="mobile-toggle" (click)="toggleMenu()" [attr.aria-expanded]="menuOpen()" aria-label="Abrir menú">
+  <mat-icon>{{ menuOpen() ? 'close' : 'menu' }}</mat-icon>
 </button>
 
 @if (menuOpen()) {
-    <div class="menu-backdrop" (click)="toggleMenu()"></div>
+  <div class="sidebar-backdrop" (click)="toggleMenu()"></div>
 }
 
-<mat-card class="navbar-container" [class.is-open]="menuOpen()">
-    <mat-card-content class="navbar-content">
-        <div class="logo">
-            <img src="logoNoLettersBBg.png" alt="logo" class="logo-img">
-        </div>
-        <mat-label class="user-name">{{nameUser()}}</mat-label>
-        <button matButton class="button-navBar" (click)="listBusiness()">Mis negocios</button>
-        <button matButton class="button-navBar" (click)="createBusiness()">Crear negocio</button>
-        <div class="button-logout">
-            <button matButton="elevated" (click)="exit()">Cerrar sesion</button>
-        </div>
-    </mat-card-content>
-</mat-card>
+<nav class="sidebar" [class.sidebar--open]="menuOpen()" aria-label="Menú de administración">
+
+  <!-- Brand -->
+  <div class="sidebar-brand">
+    <div class="brand-logo">
+      <img src="logoNoLettersBBg.png" alt="ProfitX" class="brand-logo-img">
+    </div>
+    <div class="brand-info">
+      <span class="brand-name">ProfitX</span>
+      @if (nameUser()) {
+        <span class="brand-user">{{ nameUser() }}</span>
+      }
+    </div>
+  </div>
+
+  <div class="sidebar-divider"></div>
+
+  <ul class="nav-list" role="list">
+    <li>
+      <a class="nav-item"
+         routerLink="/app/bussines/list"
+         routerLinkActive="nav-item--active"
+         (click)="toggleMenu()">
+        <mat-icon class="nav-icon">store</mat-icon>
+        <span class="nav-label">Mis negocios</span>
+      </a>
+    </li>
+    <li>
+      <a class="nav-item"
+         routerLink="/app/bussines/create"
+         routerLinkActive="nav-item--active"
+         (click)="toggleMenu()">
+        <mat-icon class="nav-icon">add_business</mat-icon>
+        <span class="nav-label">Crear negocio</span>
+      </a>
+    </li>
+  </ul>
+
+  <div class="sidebar-footer">
+    <button class="nav-item" (click)="theme.toggle()" type="button">
+      <mat-icon class="nav-icon">{{ theme.isDark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+      <span class="nav-label">{{ theme.isDark() ? 'Modo claro' : 'Modo oscuro' }}</span>
+    </button>
+    <button class="nav-item exit-btn" (click)="exit()" type="button">
+      <mat-icon class="nav-icon">logout</mat-icon>
+      <span class="nav-label">Cerrar sesión</span>
+    </button>
+  </div>
+
+</nav>

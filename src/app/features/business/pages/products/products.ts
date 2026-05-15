@@ -11,11 +11,10 @@ import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ProductService } from '../../services/product.service';
 import { Product } from '../../models/product.model';
-import { BusinessPriceType } from '../../models/business-price-type.model';
-import { BusinessPriceTypeService } from '../../services/business-price-type.service';
 import { debounceTime } from 'rxjs';
 import { CreateProduct } from '../create-product/create-product';
 import { EditProductDialog } from '../edit-product-dialog/edit-product-dialog';
+import { PriceTypesDialog } from '../price-types-dialog/price-types-dialog';
 import { ConfirmDialogService } from '../../../../shared/services/confirm-dialog.service';
 import { BusinessContextService } from '../../../../shared/services/business-context.service';
 import { ExportService, ExportFormat, ExportColumn } from '../../../../shared/services/export.service';
@@ -50,19 +49,11 @@ export class Products implements OnInit {
 
     private dialog = inject(MatDialog);
     private productService = inject(ProductService);
-    private priceTypeService = inject(BusinessPriceTypeService);
     private snackBar = inject(MatSnackBar);
     private confirmDialog = inject(ConfirmDialogService);
     private exportService = inject(ExportService);
     private importService = inject(ImportService);
     protected context = inject(BusinessContextService);
-
-    // ── price types ──────────────────────────────────────────────────────────
-    priceTypes = signal<BusinessPriceType[]>([]);
-    editingTypeId = signal<string | null>(null);
-    editingTypeName = '';
-    newTypeName = '';
-    isAddingType = signal(false);
 
     private readonly exportColumns: ExportColumn[] = [
         { key: 'name',         header: 'Nombre' },
@@ -97,60 +88,15 @@ export class Products implements OnInit {
         }
         this.businessId = id;
         this.loadProducts();
-        this.loadPriceTypes();
         this.myControl.valueChanges
             .pipe(debounceTime(250))
             .subscribe(term => this.filterProducts(term ?? ''));
     }
 
-    private loadPriceTypes(): void {
-        this.priceTypeService.findAll(this.businessId).subscribe({
-            next: types => this.priceTypes.set(types),
-        });
-    }
-
-    addPriceType(): void {
-        const name = this.newTypeName.trim();
-        if (!name) return;
-        this.priceTypeService.create(this.businessId, name).subscribe({
-            next: t => {
-                this.priceTypes.update(list => [...list, t]);
-                this.newTypeName = '';
-                this.isAddingType.set(false);
-            },
-            error: err => this.snackBar.open(err.error?.error ?? 'Error al crear tipo', 'Cerrar', { duration: 3000 }),
-        });
-    }
-
-    startEditType(type: BusinessPriceType): void {
-        this.editingTypeId.set(type.id);
-        this.editingTypeName = type.name;
-    }
-
-    saveEditType(type: BusinessPriceType): void {
-        const name = this.editingTypeName.trim();
-        if (!name || name === type.name) { this.cancelEditType(); return; }
-        this.priceTypeService.update(this.businessId, type.id, name).subscribe({
-            next: updated => {
-                this.priceTypes.update(list => list.map(t => t.id === updated.id ? updated : t));
-                this.cancelEditType();
-            },
-            error: err => this.snackBar.open(err.error?.error ?? 'Error al actualizar', 'Cerrar', { duration: 3000 }),
-        });
-    }
-
-    cancelEditType(): void {
-        this.editingTypeId.set(null);
-        this.editingTypeName = '';
-    }
-
-    deletePriceType(type: BusinessPriceType): void {
-        this.confirmDialog.confirm(`¿Eliminar el tipo de precio "${type.name}"?`).subscribe(confirmed => {
-            if (!confirmed) return;
-            this.priceTypeService.delete(this.businessId, type.id).subscribe({
-                next: () => this.priceTypes.update(list => list.filter(t => t.id !== type.id)),
-                error: err => this.snackBar.open(err.error?.error ?? 'Error al eliminar', 'Cerrar', { duration: 3000 }),
-            });
+    openPriceTypesDialog(): void {
+        this.dialog.open(PriceTypesDialog, {
+            width: '420px',
+            data: { businessId: this.businessId, role: this.context.role() },
         });
     }
 
@@ -180,11 +126,12 @@ export class Products implements OnInit {
 
     addProduct(): void {
         const dialogRef = this.dialog.open(CreateProduct, {
-        width: '1000px',
-        maxHeight: '100vh',
-        panelClass: 'custom-dialog',
-        disableClose: true
-    });
+            width: '95vw',
+            maxWidth: '950px',
+            maxHeight: '95vh',
+            panelClass: 'custom-dialog',
+            disableClose: true,
+        });
 
     dialogRef.afterClosed().subscribe(result => {
         if (result) {

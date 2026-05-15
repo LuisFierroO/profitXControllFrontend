@@ -1,33 +1,129 @@
-<button class="menu-toggle" (click)="toggleMenu()" [attr.aria-expanded]="menuOpen()" aria-label="Abrir menú">
-    <mat-icon>{{ menuOpen() ? 'close' : 'menu' }}</mat-icon>
+<!-- Mobile toggle -->
+<button class="mobile-toggle" (click)="toggleMenu()" [attr.aria-expanded]="menuOpen()" aria-label="Abrir menú">
+  <mat-icon>{{ menuOpen() ? 'close' : 'menu' }}</mat-icon>
 </button>
 
+<!-- Backdrop -->
 @if (menuOpen()) {
-    <div class="menu-backdrop" (click)="toggleMenu()"></div>
+  <div class="sidebar-backdrop" (click)="closeMenu()"></div>
 }
 
-<mat-card class="navbar-container" [class.is-open]="menuOpen()">
-    <mat-card-content class="navbar-content">
-        <div class="logo">
-            <img src="logoNoLettersBBg.png" alt="logo" class="logo-img">
-        </div>
-        <mat-label class="business-name">{{business()?.name}}</mat-label>
-        <button matButton class="button-navBar" (click)="sellProducts()">Vender</button>
-        <button matButton class="button-navBar" (click)="listSales()">Ventas</button>
+<!-- Sidebar -->
+<nav class="sidebar" [class.sidebar--open]="menuOpen()" aria-label="Navegación principal">
 
-        @if(canManage) {
-            <button matButton class="button-navBar" (click)="listProducts()">Productos</button>
-            <button matButton class="button-navBar" (click)="listExpenses()">Gastos</button>
-            <button matButton class="button-navBar" (click)="profitability()">Rentabilidad</button>
-            <button matButton class="button-navBar" (click)="metrics()">Metricas</button>
-            <button matButton class="button-navBar" (click)="employees()">Empleados</button>
-        }
-        @if(isOwner) {
-            <button matButton class="button-navBar" (click)="auditLog()">Registros</button>
-        }
+  <!-- Business identity -->
+  <div class="sidebar-brand">
+    <img class="brand-img"
+         [src]="business()?.imgUrl || placeholder"
+         (error)="onImgError($event)"
+         alt="Logo del negocio">
+    <div class="brand-info">
+      <span class="brand-name">{{ business()?.name || '—' }}</span>
+      <span class="brand-role">{{ roleLabel }}</span>
+    </div>
+  </div>
 
-        <div class="button-logout">
-            <button matButton="elevated" (click)="exit()">Salir</button>
-        </div>
-    </mat-card-content>
-</mat-card>
+  <div class="sidebar-divider"></div>
+
+  <!-- Nav items -->
+  <ul class="nav-list" role="list">
+
+    <li>
+      <a class="nav-item"
+         routerLink="/dashboard/sale"
+         routerLinkActive="nav-item--active"
+         (click)="closeMenu()">
+        <mat-icon class="nav-icon">shopping_cart</mat-icon>
+        <span class="nav-label">Vender</span>
+      </a>
+    </li>
+
+    <li>
+      <a class="nav-item"
+         routerLink="/dashboard/sales"
+         routerLinkActive="nav-item--active"
+         (click)="closeMenu()">
+        <mat-icon class="nav-icon">receipt_long</mat-icon>
+        <span class="nav-label">Ventas</span>
+      </a>
+    </li>
+
+    @if (canManage) {
+      <li>
+        <a class="nav-item"
+           routerLink="/dashboard/products"
+           routerLinkActive="nav-item--active"
+           (click)="closeMenu()">
+          <mat-icon class="nav-icon">inventory_2</mat-icon>
+          <span class="nav-label">Productos</span>
+        </a>
+      </li>
+
+      <li>
+        <a class="nav-item"
+           routerLink="/dashboard/expenses"
+           routerLinkActive="nav-item--active"
+           (click)="closeMenu()">
+          <mat-icon class="nav-icon">account_balance_wallet</mat-icon>
+          <span class="nav-label">Gastos</span>
+        </a>
+      </li>
+
+      <li>
+        <a class="nav-item"
+           routerLink="/dashboard/profitability"
+           routerLinkActive="nav-item--active"
+           (click)="closeMenu()">
+          <mat-icon class="nav-icon">trending_up</mat-icon>
+          <span class="nav-label">Rentabilidad</span>
+        </a>
+      </li>
+
+      <li>
+        <a class="nav-item"
+           routerLink="/dashboard/metrics"
+           routerLinkActive="nav-item--active"
+           (click)="closeMenu()">
+          <mat-icon class="nav-icon">bar_chart</mat-icon>
+          <span class="nav-label">Métricas</span>
+        </a>
+      </li>
+
+      <li>
+        <a class="nav-item"
+           routerLink="/dashboard/members"
+           routerLinkActive="nav-item--active"
+           (click)="closeMenu()">
+          <mat-icon class="nav-icon">group</mat-icon>
+          <span class="nav-label">Equipo</span>
+        </a>
+      </li>
+    }
+
+    @if (isOwner) {
+      <li>
+        <a class="nav-item"
+           routerLink="/dashboard/audit"
+           routerLinkActive="nav-item--active"
+           (click)="closeMenu()">
+          <mat-icon class="nav-icon">history</mat-icon>
+          <span class="nav-label">Registros</span>
+        </a>
+      </li>
+    }
+
+  </ul>
+
+  <!-- Footer -->
+  <div class="sidebar-footer">
+    <button class="nav-item" (click)="theme.toggle()" type="button">
+      <mat-icon class="nav-icon">{{ theme.isDark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+      <span class="nav-label">{{ theme.isDark() ? 'Modo claro' : 'Modo oscuro' }}</span>
+    </button>
+    <button class="nav-item exit-btn" (click)="exit()" type="button">
+      <mat-icon class="nav-icon">storefront</mat-icon>
+      <span class="nav-label">Mis negocios</span>
+    </button>
+  </div>
+
+</nav>

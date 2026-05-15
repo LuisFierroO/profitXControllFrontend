@@ -1,107 +1,103 @@
 <div class="login-container">
 
-    @if (view() === 'login') {
-        <div class="login-header">
-            <div class="logo">
-                <img src="logoNoLettersBBg.png" alt="logo" class="logo-img">
-            </div>
-            <div>
-                <mat-card-title class="login-title">Inicia sesion</mat-card-title>
-            </div>
-        </div>
-        <mat-card-content class="login-card">
-            <div>
-                <form class="login-form" [formGroup]="loginForm" (ngSubmit)="login()">
-                    <mat-form-field class="text-field">
-                        <mat-label>Correo electronico</mat-label>
-                        <input matInput formControlName="email" type="text">
-                    </mat-form-field>
+  @if (view() === 'login') {
+    <div class="login-header">
+      <h2 class="login-title">Bienvenido de nuevo</h2>
+      <p class="login-subtitle">Ingresa tus credenciales para continuar</p>
+    </div>
 
-                    <mat-form-field class="text-field">
-                        <mat-label>Contraseña</mat-label>
-                        <input matInput formControlName="password" type="password">
-                    </mat-form-field>
+    <div class="login-card">
+      <form class="login-form" [formGroup]="loginForm" (ngSubmit)="login()">
 
-                    @if (loginError()) {
-                        @if (accountLocked()) {
-                            <div class="auth-alert auth-alert-locked">
-                                <mat-icon>lock</mat-icon>
-                                <div class="auth-alert-body">
-                                    <strong class="auth-alert-title">Cuenta bloqueada temporalmente</strong>
-                                    <p>{{ loginError() }}</p>
-                                    <button type="button" class="auth-alert-action" (click)="showForgot()">
-                                        Restablecer contraseña ahora →
-                                    </button>
-                                </div>
-                            </div>
-                        } @else if (remainingAttempts() !== null) {
-                            <div class="auth-alert auth-alert-warning">
-                                <mat-icon>warning</mat-icon>
-                                <div class="auth-alert-body">
-                                    <p>{{ loginError() }}</p>
-                                    <span class="attempts-badge">{{ remainingAttempts() }} {{ remainingAttempts() === 1 ? 'intento restante' : 'intentos restantes' }}</span>
-                                </div>
-                            </div>
-                        } @else {
-                            <p class="login-error">{{ loginError() }}</p>
-                        }
-                    }
+        <mat-form-field class="text-field" appearance="outline">
+          <mat-label>Correo electrónico</mat-label>
+          <input matInput formControlName="email" type="email" autocomplete="email">
+        </mat-form-field>
 
-                    <div class="buttons-row">
-                        <button type="button" matButton="text" (click)="showForgot()">Olvidaste tu contraseña?</button>
-                        <button matButton="filled" type="submit" class="button-login"
-                            [disabled]="isLoading() || accountLocked()">
-                            @if (isLoading()) {
-                                <mat-spinner diameter="20"></mat-spinner>
-                            } @else {
-                                Ingresar
-                            }
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </mat-card-content>
-    }
+        <mat-form-field class="text-field" appearance="outline">
+          <mat-label>Contraseña</mat-label>
+          <input matInput formControlName="password" type="password" autocomplete="current-password">
+        </mat-form-field>
 
-    @if (view() === 'forgot') {
-        <div class="login-header">
-            <div class="logo">
-                <img src="logoNoLettersBBg.png" alt="logo" class="logo-img">
+        @if (loginError()) {
+          @if (accountLocked()) {
+            <div class="auth-alert auth-alert-locked" role="alert">
+              <mat-icon>lock</mat-icon>
+              <div class="auth-alert-body">
+                <strong class="auth-alert-title">Cuenta bloqueada temporalmente</strong>
+                <p>{{ loginError() }}</p>
+                <button type="button" class="auth-alert-action" (click)="showForgot()">
+                  Restablecer contraseña →
+                </button>
+              </div>
             </div>
-            <div>
-                <mat-card-title class="forgot-title">Recuperar contraseña</mat-card-title>
+          } @else if (remainingAttempts() !== null) {
+            <div class="auth-alert auth-alert-warning" role="alert">
+              <mat-icon>warning</mat-icon>
+              <div class="auth-alert-body">
+                <p>{{ loginError() }}</p>
+                <span class="attempts-badge">
+                  {{ remainingAttempts() }} {{ remainingAttempts() === 1 ? 'intento restante' : 'intentos restantes' }}
+                </span>
+              </div>
             </div>
-        </div>
-        <mat-card-content class="login-card">
-            @if (!forgotSent()) {
-                <p class="forgot-subtitle">Ingresa tu correo y te enviaremos un enlace para restablecer tu contraseña.</p>
-                <form class="login-form" [formGroup]="forgotForm" (ngSubmit)="sendResetLink()">
-                    <mat-form-field class="text-field">
-                        <mat-label>Correo electronico</mat-label>
-                        <input matInput formControlName="email" type="email">
-                        @if (forgotForm.get('email')?.hasError('email') && forgotForm.get('email')?.touched) {
-                            <mat-error>Ingresa un correo válido</mat-error>
-                        }
-                    </mat-form-field>
-                    <div class="buttons-row">
-                        <button type="button" matButton="text" (click)="showLogin()">Volver</button>
-                        <button matButton="filled" type="submit" class="button-login"
-                            [disabled]="forgotForm.invalid || isLoading()">
-                            @if (isLoading()) {
-                                <mat-spinner diameter="20"></mat-spinner>
-                            } @else {
-                                Enviar enlace
-                            }
-                        </button>
-                    </div>
-                </form>
+          } @else {
+            <p class="login-error" role="alert">{{ loginError() }}</p>
+          }
+        }
+
+        <div class="buttons-row">
+          <button type="button" matButton (click)="showForgot()">¿Olvidaste tu contraseña?</button>
+          <button matButton="filled" type="submit" class="button-login"
+                  [disabled]="isLoading() || accountLocked()">
+            @if (isLoading()) {
+              <mat-spinner diameter="16"></mat-spinner>
             } @else {
-                <div class="forgot-success">
-                    <p>Si existe una cuenta con ese correo, recibirás un enlace para restablecer tu contraseña.</p>
-                    <button matButton="filled" (click)="showLogin()">Volver al inicio de sesión</button>
-                </div>
+              Ingresar
             }
-        </mat-card-content>
-    }
+          </button>
+        </div>
+
+      </form>
+    </div>
+  }
+
+  @if (view() === 'forgot') {
+    <div class="login-header">
+      <h2 class="forgot-title">Recuperar contraseña</h2>
+      <p class="login-subtitle">Te enviaremos un enlace para restablecer tu contraseña.</p>
+    </div>
+
+    <div class="login-card">
+      @if (!forgotSent()) {
+        <form class="login-form" [formGroup]="forgotForm" (ngSubmit)="sendResetLink()">
+          <mat-form-field class="text-field" appearance="outline">
+            <mat-label>Correo electrónico</mat-label>
+            <input matInput formControlName="email" type="email" autocomplete="email">
+            @if (forgotForm.get('email')?.hasError('email') && forgotForm.get('email')?.touched) {
+              <mat-error>Ingresa un correo válido</mat-error>
+            }
+          </mat-form-field>
+
+          <div class="buttons-row">
+            <button type="button" matButton (click)="showLogin()">Volver</button>
+            <button matButton="filled" type="submit" class="button-login"
+                    [disabled]="forgotForm.invalid || isLoading()">
+              @if (isLoading()) {
+                <mat-spinner diameter="16"></mat-spinner>
+              } @else {
+                Enviar enlace
+              }
+            </button>
+          </div>
+        </form>
+      } @else {
+        <div class="forgot-success">
+          <p>Si existe una cuenta con ese correo recibirás un enlace para restablecer tu contraseña en unos minutos.</p>
+          <button matButton="filled" (click)="showLogin()">Volver al inicio de sesión</button>
+        </div>
+      }
+    </div>
+  }
 
 </div>

@@ -1,70 +1,57 @@
 .register-container {
-    align-items: center;
-    display: flex;
-    flex: 1 1 auto;
-    flex-direction: column;
-    justify-content: center;
-    padding: clamp(1rem, 4%, 2rem);
-    height: 100%;
-    width: 100%;
-    gap: clamp(20px, 5vh, 40px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--px-6);
+  width: 100%;
+  animation: px-fade-up var(--px-base) both;
 }
 
 .register-header {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--px-2);
 }
 
 .register-title {
-    font-size: clamp(1.75rem, 5vw, 2.5rem);
-    text-align: center;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--px-text-1);
+  letter-spacing: -.02em;
+  margin: 0;
 }
 
 .register-card {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 20px;
-    width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--px-4);
+  width: 100%;
 }
 
 .register-form {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--px-3);
+  width: 100%;
 }
+
+.text-field { width: 100%; }
 
 .buttons-row {
-    display: flex;
-    width: 100%;
-    height: auto;
-    justify-content: center;
-    align-items: center;
-    gap: 20px;
-    flex-wrap: wrap;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--px-3);
+  padding-top: var(--px-2);
 }
 
-.button-rounded {
-    border-radius: 50%;
-}
+.button-register { min-width: 120px; }
 
-.button-register {
-    min-width: 120px;
+.register-error {
+  font-size: 12px;
+  color: var(--px-error);
+  margin: 0;
+  padding: var(--px-3) var(--px-4);
+  background: var(--px-error-bg);
+  border: 1px solid var(--px-error-border);
+  border-radius: var(--px-r-lg);
 }
-
-.logo {
-    box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.22);
-    border-radius: 50%;
-    align-items: center;
-    justify-content: center;
-    display: flex;
-    height: clamp(72px, 10vw, 100px);
-    width: clamp(72px, 10vw, 100px);
-    overflow: hidden;
-}
-

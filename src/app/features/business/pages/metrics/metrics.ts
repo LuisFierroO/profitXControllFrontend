@@ -13,7 +13,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MetricsService } from '../../services/metrics.service';
-import { Summary, TimeSeriesPoint, TopProduct, ExpenseBreakdown, StockAlert, AlertLevel, PriceTypeProfit } from '../../models/metrics.model';
+import { Summary, TimeSeriesPoint, TopProduct, ExpenseBreakdown, StockAlert, AlertLevel } from '../../models/metrics.model';
 import { forkJoin } from 'rxjs';
 import { Chart, registerables } from 'chart.js';
 
@@ -56,7 +56,6 @@ export class Metrics implements OnInit {
     topProducts        = signal<TopProduct[]>([]);
     expenseBreakdown   = signal<ExpenseBreakdown[]>([]);
     stockAlerts        = signal<StockAlert[]>([]);
-    priceTypeProfits   = signal<PriceTypeProfit[]>([]);
     topProductsSort    = signal<'quantity' | 'revenue'>('quantity');
 
     dateFrom = new FormControl<Date | null>(null);
@@ -94,12 +93,11 @@ export class Metrics implements OnInit {
         const sort = this.topProductsSort();
 
         forkJoin({
-            summary:          this.metricsService.getSummary(this.businessId, from, to),
-            timeseries:       this.metricsService.getTimeSeries(this.businessId, from, to),
-            topProducts:      this.metricsService.getTopProducts(this.businessId, from, to, 5, sort),
-            breakdown:        this.metricsService.getExpenseBreakdown(this.businessId, from, to),
-            alerts:           this.metricsService.getStockAlerts(this.businessId),
-            priceTypeProfits: this.metricsService.getProfitByPriceType(this.businessId, from, to),
+            summary:     this.metricsService.getSummary(this.businessId, from, to),
+            timeseries:  this.metricsService.getTimeSeries(this.businessId, from, to),
+            topProducts: this.metricsService.getTopProducts(this.businessId, from, to, 5, sort),
+            breakdown:   this.metricsService.getExpenseBreakdown(this.businessId, from, to),
+            alerts:      this.metricsService.getStockAlerts(this.businessId),
         }).subscribe({
             next: (data) => {
                 this.summary.set(data.summary);
@@ -107,7 +105,6 @@ export class Metrics implements OnInit {
                 this.topProducts.set(data.topProducts);
                 this.expenseBreakdown.set(data.breakdown);
                 this.stockAlerts.set(data.alerts);
-                this.priceTypeProfits.set(data.priceTypeProfits);
                 this.isLoading.set(false);
             },
             error: () => {
